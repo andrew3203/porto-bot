@@ -1,7 +1,8 @@
 """
     Celery tasks. Some of them will be launched periodically from admin panel via django-celery-beat
 """
-
+from portobello.settings import REDIS_URL
+import redis
 import time
 from typing import Union, List, Optional, Dict
 
@@ -64,5 +65,15 @@ def broadcast_message2(
         time.sleep(max(sleep_between, 0.1))
 
     logger.info("Broadcast finished!")
+
+@app.task(ignore_result=True)
+def update_photo(queue):
+    r = redis.from_url(REDIS_URL)
+    for file_id, path in queue:
+        pass
+        #File.objects.filter(file__path=path).update(tg_id=file_id)
+    cash = models.Message.make_cashes()
+    r.mset(cash)
+    print('set_messages_states')
 
 

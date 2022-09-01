@@ -581,13 +581,4 @@ def remove_user_states(sender, instance, **kwargs):
     k = f'{instance.user_id}__keywords'
     r.delete(k) # TODO: check remove
     print('remove_user_states')
-
-async def update_photo(queue):
-    r = redis.from_url(REDIS_URL)
-    for file_id, path in queue:
-        pass
-        #File.objects.filter(file__path=path).update(tg_id=file_id)
-    cash = Message.make_cashes()
-    r.mset(cash)
-    print('set_messages_states')
     

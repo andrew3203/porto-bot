@@ -2,7 +2,9 @@ import imp
 import asyncio
 from re import M
 import redis
-from bot.models import MessageType, update_photo
+from bot.models import MessageType
+from bot.tasks import update_photo
+
 import datetime
 import logging
 
@@ -81,13 +83,13 @@ def send_message(prev_state, next_state, user_id, context, prev_message_id):
     markup = next_state["markup"]
     message_text = get_message_text(next_state["text"], next_state['user_keywords'])
 
-    q = []
+    queue = []
     for file in next_state.get("photos", []):
         file_id = _send_photo(file,  user_id=user_id)
-        q.append((file_id, file[1]))
+        queue.append((file_id, file[1]))
 
-    if q != next_state.get("photos", []):
-        asyncio.run(update_photo(q))
+    if queue != next_state.get("photos", []):
+        update_photo.delay(queue)
     
 
     if next_msg_type == MessageType.POLL:
