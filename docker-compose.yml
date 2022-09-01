@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  web:
+    container_name: web
+    build: ./app
+    command: python manage.py runserver 0.0.0.0:8080
+    volumes:
+      - ./app/:/usr/src/app/
+    ports:
+      - 8080:8080
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - db
+  db:
+    container_name: db
+    image: postgres:13.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=portobello
+      - POSTGRES_PASSWORD=portobello
+      - POSTGRES_DB=portobello_dev
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    volumes:
+      - ./redis_data:/data
+
+volumes:
+  postgres_data:

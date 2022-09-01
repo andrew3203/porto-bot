@@ -1,0 +1,18 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<form action="" method="post">{% csrf_token %}
+    <p>
+        Чтобы добавить кнопки/пункты опроса к сообщению оберните их в [].
+        <br>
+        Если хотите добавить кнопку с сылкой, напишите ее в следующем формате:
+        [текст кнопки](ссылка)
+    </p>
+    <br>
+    {{ form.as_p }}
+   
+    <input type="hidden" name="action" value="broadcast" />
+    <input type="submit" name="apply" value="Запустить рассылку" />
+</form>
+{% endblock %}
+

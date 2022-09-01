@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+
+  web:
+    container_name: web
+    build:
+      context: ./app
+      dockerfile: Dockerfile.prod
+    command: gunicorn portobello.wsgi:application --bind :8080
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    expose:
+      - 8080
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - db
+      - redis
+  
+  bot:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.prod
+    container_name: bot
+    command: python run_pooling.py
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - web
+      - redis 
+      - db
+  
+  db:
+    container_name: db
+    image: postgres:13.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env.prod.db
+  
+  redis:
+    image: redis:alpine
+    container_name: redis
+    volumes:
+      - ./redis_data:/data
+  
+  celery:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.prod
+    container_name: celery
+    command: celery -A portobello worker --loglevel=INFO
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - redis
+      - web
+      
+  celery-beat:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.prod
+    container_name: beat
+    command: celery -A portobello beat -l info --scheduler django_celery_beat.schedulers.DatabaseScheduler
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - redis
+      - celery
+      - web
+
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    ports:
+      - 8081:8081
+    depends_on:
+      - web
+
+#networks:
+#  default:
+#    name: nginxproxymanager_default
+#    external: true
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

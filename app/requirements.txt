@@ -1,0 +1,32 @@
+# General
+requests
+
+# Django
+Django==3.2.6
+django-timezone-field 
+django-cors-headers
+django-debug-toolbar
+
+# Databases
+psycopg2-binary==2.9.1
+
+# Distributed tasks
+celery
+redis
+django-celery-beat
+
+# Telegram
+python-telegram-bot
+
+# File control
+Pillow
+django-cleanup
+
+# Prepocessing
+cyrtranslit
+emoji
+flashtext
+
+# Server
+gunicorn==20.1.0
+
