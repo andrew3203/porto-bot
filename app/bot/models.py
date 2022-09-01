@@ -585,7 +585,8 @@ def remove_user_states(sender, instance, **kwargs):
 async def update_photo(queue):
     r = redis.from_url(REDIS_URL)
     for file_id, path in queue:
-        File.objects.filter(file__path=path).update(tg_id=file_id)
+        pass
+        #File.objects.filter(file__path=path).update(tg_id=file_id)
     cash = Message.make_cashes()
     r.mset(cash)
     print('set_messages_states')
