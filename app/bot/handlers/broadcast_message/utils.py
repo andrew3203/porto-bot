@@ -79,5 +79,5 @@ def _send_photo(
 ) -> bool:
     bot = telegram.Bot(tg_token)
     m = bot.send_photo(user_id, photo=file[0] or open(file[1], 'rb'))
-    return m.photo[0].file_id
+    return m.photo[-1].file_id
     
