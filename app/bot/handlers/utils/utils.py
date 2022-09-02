@@ -88,8 +88,8 @@ def send_message(prev_state, next_state, user_id, context, prev_message_id):
         file_id = _send_photo(file,  user_id=user_id)
         queue.append((file_id, file[1]))
 
-    if queue != next_state.get("photos", []):
-        update_photo.delay(queue)
+    #if queue != next_state.get("photos", []):
+    #    update_photo.delay(queue)
     
 
     if next_msg_type == MessageType.POLL:

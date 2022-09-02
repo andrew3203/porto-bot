@@ -122,22 +122,23 @@ def receive_poll_answer(update: Update, context) -> None:
 
 def forward_from_support(update: Update, context: CallbackContext) -> None:
     replay_msg = update.message.reply_to_message
-    try:
-        regex = 'user\/\d+\/change'
-        replay_msg_text = re.match(regex, replay_msg.text)
-        chat_id = int(re.sub('(user/)|(/change)', '', replay_msg_text.group()))
-        context.bot.send_message(
-            chat_id=chat_id,
-            text=f'Ответ от Павла:\n\n{update.message.text}',
-            parse_mode=ParseMode.HTML,
-        )
-        update.effective_chat.send_message(
-            text='Cообщение отправлено',
-        )
-    except Exception as e:
-        update.effective_chat.send_message(
-            text='Ошибка',
-        )
+    #try:
+    regex = 'user\/\d+\/change'
+    replay_msg_text = re.match(regex, replay_msg.text)
+    chat_id = re.sub('(user/)|(/change)', '', replay_msg_text.group())
+    chat_id=int(chat_id)
+    context.bot.send_message(
+        chat_id=chat_id,
+        text=f'Ответ от Павла:\n\n{update.message.text}',
+        parse_mode=ParseMode.HTML,
+    )
+    update.effective_chat.send_message(
+        text='Cообщение отправлено',
+    )
+    #except Exception as e:
+    #   update.effective_chat.send_message(
+    #        text='Ошибка',
+    #    )
 
 
 def forward_to_support(update: Update, context: CallbackContext) -> None:
