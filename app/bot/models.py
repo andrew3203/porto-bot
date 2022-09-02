@@ -470,7 +470,7 @@ class Message(CreateUpdateTracker):
             'ways': {**common_ways, **data['ways']},
             'markup': data['markup'] if data['markup'] else '',
             'message_type': data['message_type'],
-            'photos': [(None, f.file.path) for f in self.files.all()]
+            'photos': [f.file.path for f in self.files.all()]
         }, ensure_ascii=False)
         return cash
 

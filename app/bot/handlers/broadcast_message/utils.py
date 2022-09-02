@@ -73,12 +73,12 @@ def _send_message(
    
 
 def _send_photo(
-    file: tuple,
+    file: str,
     user_id: Union[str, int],
     tg_token: str = TELEGRAM_TOKEN
 ) -> bool:
     bot = telegram.Bot(tg_token)
     photo=file[0] or open(file[1], 'rb')
-    m = bot.send_photo(user_id, photo=open(file[1], 'rb'))
+    m = bot.send_photo(user_id, photo=open(file, 'rb'))
     return m.photo[-1].file_id
     
