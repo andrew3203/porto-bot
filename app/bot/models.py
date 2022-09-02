@@ -559,20 +559,17 @@ class Broadcast(CreateTracker):
 @receiver(post_save, sender=Message)
 def set_message_states(sender, instance, **kwargs):
     r = redis.from_url(REDIS_URL)
-    cash = instance.make_cash()
+    cash = Message.make_cashes() #instance.make_cash()
     r.mset(cash)
-    print('set_message_states')
  
 @receiver(post_delete, sender=Message)
 def remove_message_states(sender, instance, **kwargs):
     r = redis.from_url(REDIS_URL)
     r.delete(instance.id) # TODO: check remove
-    print('remove_message_states')
 
 @receiver(post_save, sender=User)
 def set_user_keywords(sender, instance, **kwargs):
     instance.set_keywords()
-    print('set_user_keywords')
 
 
 @receiver(post_delete, sender=User)
@@ -580,5 +577,4 @@ def remove_user_states(sender, instance, **kwargs):
     r = redis.from_url(REDIS_URL)
     k = f'{instance.user_id}__keywords'
     r.delete(k) # TODO: check remove
-    print('remove_user_states')
     

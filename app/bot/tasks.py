@@ -69,8 +69,8 @@ def broadcast_message2(
 @app.task(ignore_result=True)
 def update_photo(queue):
     r = redis.from_url(REDIS_URL)
-    for file_id, path in queue:
-        pass
+    #for file_id, path in queue:
+        #pass
         #File.objects.filter(file__path=path).update(tg_id=file_id)
     cash = models.Message.make_cashes()
     r.mset(cash)
