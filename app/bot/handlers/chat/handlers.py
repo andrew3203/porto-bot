@@ -123,10 +123,11 @@ def receive_poll_answer(update: Update, context) -> None:
 def forward_from_support(update: Update, context: CallbackContext) -> None:
     replay_msg = update.message.reply_to_message
     #try:
-    regex = 'user\/\d+\/change'
+    #regex = 'user\/\d+\/change'
+    regex = '^\d+'
     replay_msg_text = re.match(regex, replay_msg.text)
-    chat_id = re.sub('(user/)|(/change)', '', replay_msg_text.group())
-    chat_id=int(chat_id)
+    # chat_id = re.sub('(user/)|(/change)', '', replay_msg_text.group())
+    chat_id=int(replay_msg_text.group())
     context.bot.send_message(
         chat_id=chat_id,
         text=f'Ответ от Павла:\n\n{update.message.text}',
