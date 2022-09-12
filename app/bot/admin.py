@@ -98,7 +98,7 @@ class UserAdmin(admin.ModelAdmin):
         ('О пользователе (из crm)', {
             'fields': (
                 ('company',),
-                ('phone',)
+                ('phone',),
                 ('turnover', 'orders'),
                 ('deep_link', 'position'),
                 ("rating_place",),
