@@ -39,6 +39,10 @@ class User(CreateUpdateTracker):
         'Username',
         max_length=32, **nb
     )
+    phone = models.CharField(
+        'Тел',
+        max_length=32, **nb
+    )
     first_name = models.CharField(
         'Имя',
         max_length=256, **nb
@@ -53,7 +57,7 @@ class User(CreateUpdateTracker):
         help_text="Язык приложения телеграм", **nb
     )
     deep_link = models.CharField(
-        'Стартовый Код',
+        'User code',
         max_length=64, **nb
     )
     is_blocked_bot = models.BooleanField(
@@ -108,7 +112,24 @@ class User(CreateUpdateTracker):
         blank=True,
         default=''
     )
-
+    company = models.CharField(
+        'Компания',
+        max_length=256,
+        blank=True,
+        default=''
+    )
+    orders = models.IntegerField(
+        'Кол-во заказов',
+        help_text='Кол-во заказов с момента регистрации в программе лояльнсти',
+        blank=True,
+        default=0
+    )
+    turnover = models.IntegerField(
+        'Оборот',
+        help_text='c 6-го апреля по 31 дек',
+        blank=True,
+        default=0
+    )
     objects = GetOrNoneManager()  # user = User.objects.get_or_none(user_id=<some_id>)
     admins = AdminUserManager()  # User.admins.all()
 
@@ -153,6 +174,7 @@ class User(CreateUpdateTracker):
 
         birth_date = self.birth_date.strftime("%y.%m.%d") if self.birth_date else '2000.02.02'
         d =  {
+            self.deep_link: ['user_code'],
             self.free_cashback: ['free_cashback'],
             self.rating_place: ['rating_place'],
             self.all_time_cashback: ['all_time_cashback'],
@@ -162,7 +184,9 @@ class User(CreateUpdateTracker):
             self.last_name: ['last_name'],
             self.first_name: ['first_name'],
             self.username: ['username'],
-            self.position: ['position']
+            self.position: ['position'],
+            self.company if len(self.company) > 1 else '-': ['company'],
+            self.phone if len(self.phone) > 1 else '-': ['phone']
         }
         if len(q) > 0:
             d[0] = q
@@ -199,6 +223,11 @@ class User(CreateUpdateTracker):
             return json.loads(r.get(message_id))
 
         return None
+    
+    @staticmethod
+    def set_message_id(user_id, message_id):
+        r = redis.from_url(REDIS_URL)
+        r.set(f'{user_id}_prev_message_id', value=message_id)
 
     @staticmethod
     def get_prev_next_states(user_id, msg_text_key):
@@ -227,7 +256,9 @@ class User(CreateUpdateTracker):
         next_state['user_keywords'] = json.loads(r.get(f'{user_id}_keywords'))
         r.setex(user_id, timedelta(hours=5), value=next_state_id)
 
-        return prev_state, next_state
+        prev_message_id = r.get(f'{user_id}_prev_message_id')
+
+        return prev_state, next_state, prev_message_id
     
     @staticmethod
     def get_broadcast_next_states(user_id, message_id):

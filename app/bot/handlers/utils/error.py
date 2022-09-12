@@ -21,15 +21,15 @@ def send_stacktrace_to_tg_chat(update: Update, context: CallbackContext) -> None
     # Build the message with some markup and additional information about what happened.
     # You might need to add some logic to deal with messages longer than the 4096 character limit.
     message = (
-        f'An exception was raised while handling an update\n'
+        f'Возникло исключение при обработке обновления\n'
         f'<pre>{html.escape(tb_string)}</pre>'
     )
 
     user_message = """
-😔 Something broke inside the bot.
-It is because we are constantly improving our service but sometimes we might forget to test some basic stuff.
-We already received all the details to fix the issue.
-Return to /start
+😔 Внутри бота что-то сломалось.
+Это потому, что мы постоянно улучшаем наш сервис, но иногда мы можем забыть протестировать некоторые базовые вещи.
+Мы уже получили все детали для решения проблемы.
+Вернуться к /start
 """
     context.bot.send_message(
         chat_id=u.user_id,

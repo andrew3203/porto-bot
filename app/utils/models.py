@@ -7,7 +7,7 @@ nb = dict(null=True, blank=True)
 
 class CreateTracker(models.Model):
     created_at = models.DateTimeField(
-        'Создано',
+        'Дата регистрации',
         auto_now_add=True, db_index=True
     )
 
@@ -18,7 +18,7 @@ class CreateTracker(models.Model):
 
 class CreateUpdateTracker(CreateTracker):
     updated_at = models.DateTimeField(
-        'Обновлено',
+        'Дата последней активности',
         auto_now=True
     )
 

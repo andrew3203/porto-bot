@@ -1,7 +1,7 @@
 import datetime
 import logging
 import re
-
+from django.utils import timezone
 
 from django.utils import timezone
 from telegram import ParseMode, Update
@@ -13,6 +13,7 @@ from bot.handlers.onboarding.keyboards import make_keyboard_for_start_command
 from bot.handlers.utils import utils
 from bot.handlers.utils.info import extract_user_data_from_update
 from telegram import ReplyKeyboardRemove
+from bot.tasks import send_delay_message
 
 
 def command_start(update: Update, context: CallbackContext) -> None:
@@ -31,6 +32,15 @@ def command_start(update: Update, context: CallbackContext) -> None:
                 "буду писать вам и рассказывать о наших новых возможностях, акциях и эксклюзивных предложениях! 😎\n\n" \
                 "Если у вас возникнут вопросы по программе, пишите боту. Он передаст мне всю информацию, " \
                 "и в ближайшее время я с вами свяжусь!"
+            )
+            now = timezone.now()
+            task1 = send_delay_message.apply_async(
+                kwargs={'user_id': u.user_id, 'msg_name': 'Клуб лидеров'}, 
+                countdown=now+datetime.timedelta(seconds=10)#days=1)
+            )
+            task2 = send_delay_message.apply_async(
+                kwargs={'user_id': u.user_id, 'msg_name': 'Колесо Фортуны'},
+                 countdown=now+datetime.timedelta(seconds=20)#days=2)
             )
         else:
             recive_command(update, context)
@@ -52,16 +62,15 @@ def recive_command(update: Update, context: CallbackContext) -> None:
     user_id = extract_user_data_from_update(update)["user_id"]
     msg_text = update.message.text.replace('/', '') 
     print(f'recive command {msg_text} from {user_id}')
-    prev_state, next_state = User.get_prev_next_states(user_id, msg_text)
+    prev_state, next_state, prev_message_id = User.get_prev_next_states(user_id, msg_text)
 
     prev_msg_id = utils.send_message(
         prev_state=prev_state,
         next_state=next_state,
         user_id=user_id,
-        context=context,
-        prev_message_id=context.user_data.get('prev_msg_id', None)
+        prev_message_id=prev_message_id
     )
-    context.user_data['prev_msg_id'] = prev_msg_id
+    User.set_message_id(user_id, prev_msg_id)
 
 
 def recive_message(update: Update, context: CallbackContext) -> None:
@@ -69,16 +78,15 @@ def recive_message(update: Update, context: CallbackContext) -> None:
     msg_text = update.message.text
     print(f'recive recive_message from {user_id} {msg_text}')
 
-    prev_state, next_state = User.get_prev_next_states(user_id, msg_text)
+    prev_state, next_state, prev_message_id = User.get_prev_next_states(user_id, msg_text)
 
     prev_msg_id = utils.send_message(
         prev_state=prev_state,
         next_state=next_state,
         user_id=user_id,
-        context=context,
-        prev_message_id=context.user_data.get('prev_msg_id', None)
+        prev_message_id=prev_message_id
     )
-    context.user_data['prev_msg_id'] = prev_msg_id
+    User.set_message_id(user_id, prev_msg_id)
 
 
 def recive_calback(update: Update, context: CallbackContext) -> None:
@@ -87,14 +95,14 @@ def recive_calback(update: Update, context: CallbackContext) -> None:
 
     print(f'recive recive_calback from {user_id} {msg_text}')
     update.callback_query.answer()
-    _, next_state = User.get_prev_next_states(user_id, msg_text)
+    _, next_state, prev_msg_id = User.get_prev_next_states(user_id, msg_text)
 
     prev_msg_id = utils.edit_message(
         next_state=next_state,
         user_id=user_id,
         update=update
     )
-    context.user_data['prev_msg_id'] = prev_msg_id
+    User.set_message_id(user_id, prev_msg_id)
 
 
 def receive_poll_answer(update: Update, context) -> None:
@@ -108,16 +116,15 @@ def receive_poll_answer(update: Update, context) -> None:
     user_id = extract_user_data_from_update(update)["user_id"]
     msg_text = answered_poll.lower().replace(' ', '')
 
-    prev_state, next_state = User.get_prev_next_states(user_id, msg_text)
+    prev_state, next_state, prev_message_id = User.get_prev_next_states(user_id, msg_text)
 
     prev_msg_id = utils.send_message(
         prev_state=prev_state,
         next_state=next_state,
         user_id=user_id,
-        context=context,
-        prev_message_id=context.user_data.get('prev_msg_id', None)
+        prev_message_id=prev_message_id
     )
-    context.user_data['prev_msg_id'] = prev_msg_id
+    User.set_message_id(user_id, prev_msg_id)
 
 
 def forward_from_support(update: Update, context: CallbackContext) -> None:
@@ -145,13 +152,13 @@ def forward_from_support(update: Update, context: CallbackContext) -> None:
 def forward_to_support(update: Update, context: CallbackContext) -> None:
     user_id = extract_user_data_from_update(update)["user_id"]
     msg_text = update.message.text.lower()
-    prev_state, next_state = User.get_prev_next_states(user_id, msg_text)
+    prev_state, next_state, prev_message_id = User.get_prev_next_states(user_id, msg_text)
 
     prev_msg_id = utils.send_message(
         prev_state=prev_state,
         next_state=next_state,
         user_id=user_id,
-        context=context,
-        prev_message_id=context.user_data.get('prev_msg_id', None)
+        prev_message_id=prev_message_id
     )
-    context.user_data['prev_msg_id'] = prev_msg_id
+    User.set_message_id(user_id, prev_msg_id)
+

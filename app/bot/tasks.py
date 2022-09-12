@@ -13,6 +13,7 @@ from portobello.celery import app
 from celery.utils.log import get_task_logger
 from bot.handlers.broadcast_message.utils import _send_message, _from_celery_entities_to_entities, \
     _from_celery_markup_to_markup
+from bot.models import User
 
 logger = get_task_logger(__name__)
 
@@ -58,10 +59,11 @@ def broadcast_message2(
 
     for user_id in user_ids:
         next_state = models.User.get_broadcast_next_states(user_id, message_id)
-        utils.send_broadcast_message(
+        prev_msg_id = utils.send_broadcast_message(
             new_state=next_state,
             user_id=user_id,
         )
+        User.set_message_id(user_id, prev_msg_id)
         time.sleep(max(sleep_between, 0.1))
 
     logger.info("Broadcast finished!")
@@ -76,4 +78,17 @@ def update_photo(queue):
     r.mset(cash)
     print('set_messages_states')
 
+
+@app.task(ignore_result=True)
+def send_delay_message(user_id, msg_name):
+    prev_state, next_state, prev_message_id = User.get_prev_next_states(user_id, msg_name)
+
+    prev_msg_id = utils.send_message(
+        prev_state=prev_state,
+        next_state=next_state,
+        user_id=user_id,
+        prev_message_id=prev_message_id
+    )
+    User.set_message_id(user_id, prev_msg_id)
+    print(f'{user_id} done')
 

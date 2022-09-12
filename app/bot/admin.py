@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.http import HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import render
+from bot.models import User
 
 from portobello.settings import DEBUG
 from bot.handlers.utils import utils
@@ -80,7 +81,7 @@ class UserAdmin(admin.ModelAdmin):
     list_display = [
         'user_id', 'username', 'first_name', 'last_name',
         'language_code', 'deep_link',
-        'created_at', 'updated_at', 'rating_place',
+        'created_at', 'updated_at', 'company', 'rating_place', 'turnover',
         'all_time_cashback', 'free_gold_tickets', 'free_cashback', 'all_time_gold_tickets'
     ]
     list_filter = ["is_blocked_bot", 'is_admin', 'position']
@@ -96,6 +97,9 @@ class UserAdmin(admin.ModelAdmin):
         }),
         ('О пользователе (из crm)', {
             'fields': (
+                ('company',),
+                ('phone',)
+                ('turnover', 'orders'),
                 ('deep_link', 'position'),
                 ("rating_place",),
                 ('all_time_cashback', 'free_cashback'),
@@ -148,10 +152,11 @@ class UserAdmin(admin.ModelAdmin):
                 self.message_user(request, f"Рассылка {len(queryset)} сообщений начата")
                 for user_id in user_ids:
                     next_state = models.User.get_broadcast_next_states(user_id, broadcast.message.id)
-                    utils.send_broadcast_message(
+                    prev_msg_id = utils.send_broadcast_message(
                         next_state=next_state,
                         user_id=user_id,
                     ) 
+                    User.set_message_id(user_id, prev_msg_id)
 
             else:
 
@@ -169,9 +174,24 @@ class UserAdmin(admin.ModelAdmin):
                     'title': u'Создание рассылки сообщений'
                 }
             )
-    actions = [broadcast]
+    
+    def set_owner(self, request, queryset):
+        user_ids = queryset.values_list('user_id', flat=True)
+        if 'apply' in request.POST:
+            owner = request.POST["owner"]
+            queryset.update(owner=owner)
+            self.message_user(request, f"Менеджер для {len(queryset)} клиентов назначен")
+
+        else:
+            form = forms.MakeGroupForm(initial={'_selected_action': user_ids})
+            return render(
+                request, "admin/set_owner.html", {
+                    'form': form, 'title': u'Назначение менеджера'}
+            )
+
+    actions = [broadcast, set_owner]
     broadcast.short_description = 'Создать рассылку'
-    #make_group.short_description = 'Создать группу'
+    set_owner.short_description = 'Назначить менеджера'
 
 
 @admin.register(models.Message)

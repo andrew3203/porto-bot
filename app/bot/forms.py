@@ -63,3 +63,10 @@ class BroadcastForm(forms.Form):
         broadcast.users.set(self.cleaned_data['users'])
         broadcast.save()
         return broadcast
+
+
+class SetOwnerForm(forms.Form):
+    _selected_action = forms.CharField(widget=forms.MultipleHiddenInput)
+    owner = forms.CharField(
+        max_length=100
+    )

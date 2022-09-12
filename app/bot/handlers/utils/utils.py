@@ -7,6 +7,9 @@ from bot.tasks import update_photo
 
 import datetime
 import logging
+import telegram
+
+from portobello.settings import TELEGRAM_TOKEN, TELEGRAM_LOGS_CHAT_ID
 
 from flashtext import KeywordProcessor
 from django.utils import timezone
@@ -76,7 +79,7 @@ def send_poll(context, update, text, markup):
     context.bot_data.update(payload)
 
 
-def send_message(prev_state, next_state, user_id, context, prev_message_id):
+def send_message(prev_state, next_state, user_id, prev_message_id):
     prev_msg_type = prev_state["message_type"] if prev_state else None
     next_msg_type = next_state["message_type"]
 
@@ -122,7 +125,8 @@ def send_message(prev_state, next_state, user_id, context, prev_message_id):
         )
     else:
         if prev_msg_type == MessageType.FLY_BTN:
-            context.bot.edit_message_text(
+            bot = telegram.Bot(TELEGRAM_TOKEN)
+            bot.edit_message_text(
                 chat_id=user_id, 
                 message_id=prev_message_id,
                 text=message_text,
@@ -136,6 +140,7 @@ def send_message(prev_state, next_state, user_id, context, prev_message_id):
             )
 
     return message_id
+
 
 def edit_message(next_state, user_id, update):
     markup = next_state['markup']
@@ -191,11 +196,13 @@ def send_registration(user_id, user_code):
         data = {'tg_user_id': user_id, 'bd_user_id': user_code }
     )
 
+
 def get_user_info(user_id, user_code):
     resp = requests.get(
         url=f'https://crm.portobello.ru/api/telegram/get-user-info?id={user_id}'
     )
     return resp.json()
+
 
 def send_broadcast_message(next_state, user_id):
     next_msg_type = next_state["message_type"]
@@ -213,8 +220,20 @@ def send_broadcast_message(next_state, user_id):
     else:
         reply_markup = None
 
-    _send_message(
+    prev_msg_id = _send_message(
         user_id=user_id,
         text=message_text,
         reply_markup=reply_markup
+    )
+    return prev_msg_id
+
+
+def send_logs_message(next_state):
+    text = next_state["text"] + \
+        '\n\n <b>first_name last_name</b>\n' \
+        'company, phone'
+    message_text = get_message_text(text, next_state['user_keywords'])
+    _send_message(
+        user_id=TELEGRAM_LOGS_CHAT_ID,
+        text=message_text
     )
