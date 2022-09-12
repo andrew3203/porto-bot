@@ -186,7 +186,7 @@ class User(CreateUpdateTracker):
             self.username: ['username'],
             self.position: ['position'],
             self.company if len(self.company) > 1 else '-': ['company'],
-            self.phone if len(self.phone) > 1 else '-': ['phone']
+            self.phone if self.phone else '-': ['phone']
         }
         if len(q) > 0:
             d[0] = q
