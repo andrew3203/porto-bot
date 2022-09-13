@@ -13,7 +13,7 @@ from portobello.settings import TELEGRAM_TOKEN, TELEGRAM_LOGS_CHAT_ID
 
 from flashtext import KeywordProcessor
 from django.utils import timezone
-from bot.handlers.broadcast_message.utils import _send_message, _send_photo, _revoke_message
+from bot.handlers.broadcast_message.utils import _send_message, _send_media_group, _revoke_message
 from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -92,8 +92,14 @@ def send_message(prev_state, next_state, user_id, prev_message_id):
     photos = next_state.get("photos", [])
     photo = photos.pop(0) if len(photos) > 0 else None
 
-    for file in photos:
-        _send_photo(file,  user_id=user_id)
+    if len(photos) > 1:
+        _send_media_group(photos, user_id=user_id)
+        photo == None
+    elif len(photos) == 1:
+        photo = photos.pop(0)
+    else:
+        photo == None
+    
 
     if prev_msg_type != MessageType.POLL and prev_message_id and prev_message_id != '':
         _revoke_message(

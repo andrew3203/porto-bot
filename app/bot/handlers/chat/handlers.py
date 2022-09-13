@@ -133,8 +133,9 @@ def receive_poll_answer(update: Update, context) -> None:
 
 def forward_from_support(update: Update, context: CallbackContext) -> None:
     replay_msg = update.message.reply_to_message
+    text = replay_msg.text
 
-    chat_id = replay_msg.split('bot/user/')[-1].split('/change/')[0]
+    chat_id = text.split('bot/user/')[-1].split('/change/')[0]
 
     context.bot.send_message(
         chat_id=chat_id,

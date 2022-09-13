@@ -83,14 +83,15 @@ def _send_message(
         return m.message_id
    
 
-def _send_photo(
-    file: str,
+def _send_media_group(
+    photos: list,
     user_id: Union[str, int],
     tg_token: str = TELEGRAM_TOKEN
 ) -> bool:
     bot = telegram.Bot(tg_token)
-    m = bot.send_photo(user_id, photo=open(file, 'rb'))
-    return m.photo[-1].file_id
+    media = [telegram.InputMediaPhoto(open(photo, 'rb'))  for photo in photos]
+    bot.send_media_group(user_id, media=media)
+
 
 
 def _revoke_message(

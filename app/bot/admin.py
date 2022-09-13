@@ -81,7 +81,7 @@ class UserAdmin(admin.ModelAdmin):
     list_display = [
         'user_id', 'first_name', 'last_name', 'owner', 'deep_link',
         'created_at', 'updated_at', 'company', 'rating_place', 'turnover',
-        'all_time_cashback', 'free_gold_tickets', 'free_cashback', 'all_time_gold_tickets'
+        'all_time_cashback', 'free_gold_tickets', 'free_cashback', 'all_time_gold_tickets', 'turnover', 'orders'
     ]
     list_filter = ["is_blocked_bot", 'is_admin', 'owner', 'position']
     search_fields = ('username', 'user_id')
@@ -196,7 +196,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(models.Message)
 class MessageAdmin(admin.ModelAdmin):
     list_display = [
-        'name', 'pk', 'message_type', 'clicks', 'group', 'updated_at', 'created_at'
+        'name', 'pk', 'message_type', 'clicks', 'updated_at', 'created_at'
     ]
     list_filter = ["message_type", ]
     search_fields = ('name', )
