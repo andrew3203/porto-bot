@@ -54,18 +54,29 @@ def _send_message(
     tg_token: str = TELEGRAM_TOKEN,
 ) -> bool:
     bot = telegram.Bot(tg_token)
-    photo = open(photo, 'rb') if photo else None
     try:
-        m = bot.send_message(
-            chat_id=user_id,
-            text=text,
-            photo=photo,
-            parse_mode=parse_mode, 
-            reply_markup=reply_markup,
-            reply_to_message_id=reply_to_message_id,
-            disable_web_page_preview=disable_web_page_preview,
-            entities=entities,
-        )
+        if photo:
+            m = bot.send_photo(
+                chat_id=user_id,
+                text=text,
+                photo=open(photo, 'rb'),
+                parse_mode=parse_mode, 
+                reply_markup=reply_markup,
+                reply_to_message_id=reply_to_message_id,
+                disable_web_page_preview=disable_web_page_preview,
+                entities=entities,
+            )
+        else:
+            m = bot.send_message(
+                chat_id=user_id,
+                text=text,
+                parse_mode=parse_mode, 
+                reply_markup=reply_markup,
+                reply_to_message_id=reply_to_message_id,
+                disable_web_page_preview=disable_web_page_preview,
+                entities=entities,
+            )
+        
     except telegram.error.Unauthorized:
         print(f"Can't send message to {user_id}. Reason: Bot was stopped.")
         User.objects.filter(user_id=user_id).update(is_blocked_bot=True)
