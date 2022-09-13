@@ -603,10 +603,8 @@ def set_user_keywords(sender, instance, **kwargs):
 @receiver(post_delete, sender=User)
 def remove_user_states(sender, instance, **kwargs):
     r = redis.from_url(REDIS_URL)
-    k = f'{instance.user_id}__keywords'
-    r.delete(k) 
-    k = f'{instance.user_id}_registration'
-    r.delete(k) 
-    k = f'{instance.user_id}'
-    r.delete(k) 
+    r.delete(f'{instance.user_id}') 
+    r.delete(f'{instance.user_id}__keywords') 
+    r.delete(f'{instance.user_id}_registration') 
+    r.delete(f'{instance.user_id}_prev_message_id') 
     
