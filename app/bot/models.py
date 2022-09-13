@@ -503,6 +503,7 @@ class Message(CreateUpdateTracker):
 
         data = self.parse_message()
         cash[self.id] = json.dumps({
+            'poll_id': data.get('poll_id', ''),
             'text': data['text'],
             'ways': {**common_ways, **data['ways']},
             'markup': data['markup'] if data['markup'] else '',
@@ -528,6 +529,7 @@ class Message(CreateUpdateTracker):
         for m in Message.objects.all():
             data = m.parse_message()
             cash[m.id] = json.dumps({
+                'poll_id': data.get('poll_id', ''),
                 'text': data['text'],
                 'ways': {**common_ways, **data['ways']},
                 'markup': data['markup'],

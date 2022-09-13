@@ -1,6 +1,6 @@
 command_start = '/stats'
 broadcast_command = '/broadcast'
-only_for_admins = 'Sorry, this function is only available for admins. Set "admin" flag in admin panel.'
+only_for_admins = 'К сожалению, эта функция доступна только для администраторов. Установить флаг «админ» в админ панели'
 broadcast_wrong_format = f'Чтобы отправить сообщение всем вашим пользователям,' \
                          f' нажмите \n{broadcast_command} команда с текстом, разделенным пробелом.\n' \
                          f'Пример:\n' \
