@@ -490,6 +490,8 @@ class Message(CreateUpdateTracker):
         cash = {}
         cash['start'] = common_ways['start']
         cash['error'] = common_ways.pop('error')
+        cash['колесофортуны'] = common_ways.pop('колесофортуны')
+        cash['клублидеров'] = common_ways.pop('клублидеров')
         cash['registration_error'] = common_ways.pop('registration_error')
 
         data = self.parse_message()

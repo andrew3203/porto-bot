@@ -36,7 +36,7 @@ def command_start(update: Update, context: CallbackContext) -> None:
             now = timezone.now()
             send_delay_message.apply_async(
                   kwargs={'user_id': u.user_id, 'msg_name': 'start'}, 
-                eta=now+datetime.timedelta(seconds=30)
+                eta=now+datetime.timedelta(seconds=15)
             )
             utils.send_logs_message('start', u.get_keywords())
             task1 = send_delay_message.apply_async(

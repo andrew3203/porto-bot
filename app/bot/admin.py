@@ -79,8 +79,7 @@ class DjangoAdmin(admin.ModelAdmin):
 @admin.register(models.User)
 class UserAdmin(admin.ModelAdmin):
     list_display = [
-        'user_id', 'username', 'first_name', 'last_name',
-        'language_code', 'deep_link',
+        'user_id', 'first_name', 'last_name', 'owner', 'deep_link',
         'created_at', 'updated_at', 'company', 'rating_place', 'turnover',
         'all_time_cashback', 'free_gold_tickets', 'free_cashback', 'all_time_gold_tickets'
     ]
@@ -230,6 +229,13 @@ class MessageAdmin(admin.ModelAdmin):
     )
     readonly_fields = ('created_at', 'updated_at', 'pk')
     filter_horizontal = ('files',)
+
+    def set_zeros(self, request, queryset):
+        queryset.update(clicks=0)
+        self.message_user(request, f"Счетчики кликов обнулены")
+
+    actions = [set_zeros, ]
+    set_zeros.short_description = 'Обнулить счетчики'
 
 @admin.register(models.Broadcast)
 class BroadcastAdmin(admin.ModelAdmin):
