@@ -59,7 +59,7 @@ def get_message_text(text, user_keywords):
 
 
 def send_poll(user_id, poll_id, text, markup, context):
-    questions = [m[0] for m in markup]
+    questions = [m[0][0] for m in markup]
     message = context.bot.send_poll(
         user_id,
         text,

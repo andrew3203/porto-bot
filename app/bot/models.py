@@ -482,7 +482,7 @@ class Message(CreateUpdateTracker):
         }
         if self.message_type == MessageType.POLL:
             poll = Poll.objects.create(message=self)
-            poll.answers = ': 0\n'.join([m[0] for m in markup])
+            poll.answers = ': 0\n'.join([m[0][0] for m in markup]) + ': 0\n'
             poll.save()
             res['poll_id'] = poll.pk
         return res
