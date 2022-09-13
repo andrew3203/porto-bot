@@ -56,7 +56,6 @@ def _send_message(
     bot = telegram.Bot(tg_token)
     try:
         if photo:
-            photo=photo[0] or open(photo[1], 'rb')
             m = bot.send_photo(
                 chat_id=user_id,
                 text=text,
@@ -93,7 +92,6 @@ def _send_photo(
     tg_token: str = TELEGRAM_TOKEN
 ) -> bool:
     bot = telegram.Bot(tg_token)
-    photo=file[0] or open(file[1], 'rb')
     m = bot.send_photo(user_id, photo=open(file, 'rb'))
     return m.photo[-1].file_id
 
