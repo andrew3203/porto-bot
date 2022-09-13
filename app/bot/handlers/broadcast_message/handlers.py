@@ -1,5 +1,4 @@
 import re
-from turtle import up
 import telegram
 from telegram import Update
 from telegram.ext import CallbackContext
