@@ -83,7 +83,7 @@ class UserAdmin(admin.ModelAdmin):
         'created_at', 'updated_at', 'company', 'rating_place', 'turnover',
         'all_time_cashback', 'free_gold_tickets', 'free_cashback', 'all_time_gold_tickets'
     ]
-    list_filter = ["is_blocked_bot", 'is_admin', 'position']
+    list_filter = ["is_blocked_bot", 'is_admin', 'owner', 'position']
     search_fields = ('username', 'user_id')
     fieldsets = (
         ('Основное', {
@@ -198,7 +198,7 @@ class MessageAdmin(admin.ModelAdmin):
     list_display = [
         'name', 'pk', 'message_type', 'clicks', 'group', 'updated_at', 'created_at'
     ]
-    list_filter = ["message_type", "group"]
+    list_filter = ["message_type", ]
     search_fields = ('name', )
     fieldsets = (
         ('Основное', {

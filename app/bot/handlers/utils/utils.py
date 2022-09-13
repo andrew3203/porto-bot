@@ -165,7 +165,7 @@ def send_broadcast_message(next_state, user_id):
 
 def send_logs_message(msg_text, user_keywords):
     text = f'{msg_text}' + \
-        '\n\n <b>first_name last_name</b>\n' \
+        '\n\n<b>first_name last_name</b>\n' \
         'company, phone'
     
     message_text = get_message_text(text, user_keywords)

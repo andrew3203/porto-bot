@@ -202,9 +202,9 @@ class User(CreateUpdateTracker):
         self.rating_place = new_data.get('rating_place', self.rating_place)
         self.position = new_data.get('position', self.position)
 
-        self.birth_date = new_data.get('birth_date', None)
-        #if birth_date:
-        #    self.birth_date = datetime.strptime(birth_date, "%Y-%m-%d") 
+        birth_date = new_data.get('birth_date', None)
+        if birth_date:
+            self.birth_date = datetime.strptime(birth_date.split()[0], "%Y-%m-%d") 
 
         self.save()
 
