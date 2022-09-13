@@ -38,11 +38,11 @@ def command_start(update: Update, context: CallbackContext) -> None:
             now = timezone.now()
             task1 = send_delay_message.apply_async(
                 kwargs={'user_id': u.user_id, 'msg_name': 'Клуб лидеров'}, 
-                countdown=now+datetime.timedelta(seconds=60)#days=1)
+                eta=now+datetime.timedelta(seconds=60)#days=1)
             )
             task2 = send_delay_message.apply_async(
                 kwargs={'user_id': u.user_id, 'msg_name': 'Колесо Фортуны'},
-                 countdown=now+datetime.timedelta(seconds=540)#days=2)
+                 eta=now+datetime.timedelta(seconds=540)#days=2)
             )
     
     recive_command(update, context)
