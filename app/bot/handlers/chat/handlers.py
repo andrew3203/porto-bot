@@ -138,7 +138,7 @@ def forward_from_support(update: Update, context: CallbackContext) -> None:
     chat_id = text.split('bot/user/')[-1].split('/change/')[0]
 
     context.bot.send_message(
-        chat_id=chat_id,
+        chat_id=int(chat_id),
         text=f'Ответ от Павла:\n\n{update.message.text}',
         parse_mode=ParseMode.HTML,
     )

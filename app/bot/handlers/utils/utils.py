@@ -90,7 +90,6 @@ def send_message(prev_state, next_state, user_id, prev_message_id):
     )
 
     photos = next_state.get("photos", [])
-    photo = photos.pop(0) if len(photos) > 0 else None
 
     if len(photos) > 1:
         _send_media_group(photos, user_id=user_id)
