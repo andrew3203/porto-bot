@@ -59,7 +59,7 @@ def _send_message(
             m = bot.send_photo(
                 chat_id=user_id,
                 caption=text,
-                photo=photo,
+                photo=open(photo, 'rb'),
                 parse_mode=parse_mode, 
                 reply_markup=reply_markup,
             )
