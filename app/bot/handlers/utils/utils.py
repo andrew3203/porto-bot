@@ -100,7 +100,7 @@ def send_message(prev_state, next_state, context, user_id, prev_message_id):
         photo = None
     
 
-    if prev_message_id and prev_message_id != '':
+    if prev_message_id and prev_message_id != '' and prev_message_id != MessageType.POLL:
         _revoke_message(
             user_id=user_id,
             message_id=prev_message_id
@@ -110,11 +110,11 @@ def send_message(prev_state, next_state, context, user_id, prev_message_id):
         send_poll(
             user_id, 
             poll_id=next_state['poll_id'], 
-            text='Опрос', 
+            text=message_text, 
             markup=markup, 
             context=context
         )
-        message_id = None
+        message_id = ''
 
     else:
         if next_msg_type == MessageType.KEYBOORD_BTN:

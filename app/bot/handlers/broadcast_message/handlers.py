@@ -1,4 +1,5 @@
 import re
+from turtle import up
 import telegram
 from telegram import Update
 from telegram.ext import CallbackContext
@@ -23,7 +24,12 @@ def broadcast_command_with_message(update: Update, context: CallbackContext):
             text=broadcast_no_access,
         )
     else:
-        if update.message.text == broadcast_command:
+        if update.message.photo:
+            text = update.message.caption
+        else:
+            text = update.message.text
+
+        if text == broadcast_command:
             # user typed only command without text for the message.
             update.message.reply_text(
                 text=broadcast_wrong_format,
@@ -31,7 +37,7 @@ def broadcast_command_with_message(update: Update, context: CallbackContext):
             )
             return
 
-        text = f"{update.message.text.replace(f'{broadcast_command} ', '')}"
+        text = f"{text.replace(f'{broadcast_command} ', '')}"
         markup = keyboard_confirm_decline_broadcasting()
 
         try:

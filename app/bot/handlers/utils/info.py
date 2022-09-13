@@ -27,6 +27,9 @@ def extract_user_data_from_update(update: Update) -> Dict:
         user = update.callback_query.from_user.to_dict()
     elif update.callback_query is not None and update.callback_query.message is not None:
         user = update.callback_query.message.chat.to_dict()
+    elif update.user is not None:
+        user = update.user.to_dict()
+        user['user_id'] = user['id']
     else:
         raise Exception(f"Can't extract user data from update: {update}")
 
