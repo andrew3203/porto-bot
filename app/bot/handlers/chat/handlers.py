@@ -135,7 +135,9 @@ def forward_from_support(update: Update, context: CallbackContext) -> None:
     replay_msg = update.message.reply_to_message
     text = replay_msg.text
 
-    chat_id = text.split('bot/user/')[-1].split('/change/')[0]
+    regex = "\(\d+\)"
+    match = re.findall(regex, text)
+    chat_id = int(re.sub('\(|\)', '', match[0]))
 
     context.bot.send_message(
         chat_id=int(chat_id),
