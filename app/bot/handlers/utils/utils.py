@@ -95,7 +95,7 @@ def send_message(prev_state, next_state, user_id, prev_message_id):
     for file in photos:
         _send_photo(file,  user_id=user_id)
 
-    if prev_msg_type != MessageType.POLL and prev_message_id:
+    if prev_msg_type != MessageType.POLL and prev_message_id and prev_message_id != '':
         _revoke_message(
             user_id=user_id,
             message_id=prev_message_id
