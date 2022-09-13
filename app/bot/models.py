@@ -57,7 +57,7 @@ class User(CreateUpdateTracker):
         help_text="Язык приложения телеграм", **nb
     )
     deep_link = models.CharField(
-        'User code',
+        'Person code',
         max_length=64, **nb
     )
     is_blocked_bot = models.BooleanField(
