@@ -13,7 +13,7 @@ from portobello.settings import TELEGRAM_TOKEN, TELEGRAM_LOGS_CHAT_ID
 
 from flashtext import KeywordProcessor
 from django.utils import timezone
-from bot.handlers.broadcast_message.utils import _send_message, _send_photo
+from bot.handlers.broadcast_message.utils import _send_message, _send_photo, _revoke_message
 from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -84,109 +84,44 @@ def send_message(prev_state, next_state, user_id, prev_message_id):
     next_msg_type = next_state["message_type"]
 
     markup = next_state["markup"]
-    message_text = get_message_text(next_state["text"], next_state['user_keywords'])
+    message_text = get_message_text(
+        next_state["text"], 
+        next_state['user_keywords']
+    )
 
-    queue = []
-    for file in next_state.get("photos", []):
-        file_id = _send_photo(file,  user_id=user_id)
-        queue.append((file_id, file[1]))
+    photos = next_state.get("photos", [])
+    photo = photos.pop(0) if len(photos) > 0 else (None, None)
 
-    #if queue != next_state.get("photos", []):
-    #    update_photo.delay(queue)
+    for file in photos:
+        _send_photo(file,  user_id=user_id)
+
+    if prev_msg_type != MessageType.POLL:
+        _revoke_message(
+            user_id=user_id,
+            message_id=prev_message_id
+        )
     
-
     if next_msg_type == MessageType.POLL:
-        
+        send_poll(text=message_text, markup=markup)
         message_id = None
-        if prev_msg_type == MessageType.KEYBOORD_BTN:
-            reply_markup = ReplyKeyboardRemove() if prev_msg_type == MessageType.KEYBOORD_BTN else None
-            message_id = _send_message(
-                user_id=user_id,
-                text=message_text,
-                reply_markup=reply_markup
-            )
-        send_poll(
-            text='Опрос',
-            markup=markup
-        )
-    elif next_msg_type == MessageType.KEYBOORD_BTN:
-        markup = get_keyboard_marckup(markup)
-        message_id = _send_message(
-            user_id=user_id,
-            text=message_text,
-            reply_markup=markup,
-        )
-    elif next_msg_type == MessageType.FLY_BTN:
-        markup = get_inline_marckup(markup)
-        message_id = _send_message(
-            user_id=user_id,
-            text=message_text,
-            reply_markup=markup,
-        )
+
     else:
-        if prev_msg_type == MessageType.FLY_BTN:
-            bot = telegram.Bot(TELEGRAM_TOKEN)
-            bot.edit_message_text(
-                chat_id=user_id, 
-                message_id=prev_message_id,
-                text=message_text,
-                parse_mode=ParseMode.HTML
-            )
-            message_id = prev_message_id
+        if next_msg_type == MessageType.KEYBOORD_BTN:
+            reply_markup = get_keyboard_marckup(markup)
+
+        elif next_msg_type == MessageType.FLY_BTN:
+            reply_markup = get_inline_marckup(markup)
+
         else:
-            message_id = _send_message(
-                user_id=user_id,
-                text=message_text
-            )
+            reply_markup = None
 
-    return message_id
-
-
-def edit_message(next_state, user_id, update):
-    markup = next_state['markup']
-    message_text = get_message_text(next_state['text'], next_state['user_keywords'])
-
-    next_msg_type = next_state['message_type']
-
-    for file_path in next_state.get("photos", []):
-        _send_photo(file_path,  user_id=user_id)
-
-    if next_msg_type == MessageType.POLL:
-        m = update.callback_query.edit_message_text(
-            text=message_text,
-            parse_mode=ParseMode.HTML
-        )
-        send_poll(
-            text='Опрос',
-            markup=markup
-        )
-        message_id = m.message_id
-
-    elif next_msg_type == MessageType.KEYBOORD_BTN:
-        markup = get_keyboard_marckup(markup)
-        update.callback_query.delete_message()
         message_id = _send_message(
             user_id=user_id,
             text=message_text,
-            reply_markup=markup,
+            photo=photo[1],
+            reply_markup=reply_markup
         )
 
-    elif next_msg_type == MessageType.FLY_BTN:
-        markup = get_inline_marckup(markup)
-        m = update.callback_query.edit_message_text(
-            text=message_text,
-            reply_markup=markup,
-            parse_mode=ParseMode.HTML
-        )
-        message_id = m.message_id
-
-    else:
-        m = update.callback_query.edit_message_text(
-            text=message_text,
-            parse_mode=ParseMode.HTML
-        )
-        message_id = m.message_id
-        
     return message_id
 
 

@@ -178,7 +178,7 @@ TELEGRAM_SUPPORT_CHAT = os.environ.get("TELEGRAM_SUPPORT_CHAT", default=None)
 MSG_PRIMARY_NAMES = [
     ('start', 'Старт'),
     ('balance', 'Баланс моих бонусов'),
-    ('products', 'Вопросы по продукции'),
+    ('problem', 'У меня вопрос/проблема'),
     ('stock', 'Акции Portobello'),
     ('loyalty_program', 'Программа лояльности'),
     ('support', 'Написать Павлу'),

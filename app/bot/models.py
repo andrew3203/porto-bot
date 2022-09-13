@@ -202,9 +202,9 @@ class User(CreateUpdateTracker):
         self.rating_place = new_data.get('rating_place', self.rating_place)
         self.position = new_data.get('position', self.position)
 
-        birth_date = new_data.get('birth_date', None)
-        if birth_date:
-            self.birth_date = datetime.strptime(birth_date, "%Y-%m-%d") 
+        self.birth_date = new_data.get('birth_date', None)
+        #if birth_date:
+        #    self.birth_date = datetime.strptime(birth_date, "%Y-%m-%d") 
 
         self.save()
 
@@ -238,17 +238,14 @@ class User(CreateUpdateTracker):
             message_id = json.loads(r.get(user_id))
             prev_state = json.loads(r.get(message_id))
             next_state_id = prev_state['ways'].get(msg_text_key, r.get('error'))
-            print('r.exists(user_id)', msg_text_key, next_state_id)
 
-        elif r.exists(user_id):
+        elif r.exists(f'{user_id}_registration'):
             prev_state = None
-            next_state_id = r.get('registration_error')
-            print('registration_error', msg_text_key, next_state_id)
+            next_state_id = r.get('start')
 
         else:
             prev_state = None
-            next_state_id = r.get('start')
-            print('start', msg_text_key, next_state_id)
+            next_state_id = r.get('registration_error')
 
         raw = r.get(next_state_id)
         Message.objects.filter(id=next_state_id).update(clicks=F('clicks') + 1)
@@ -607,5 +604,7 @@ def set_user_keywords(sender, instance, **kwargs):
 def remove_user_states(sender, instance, **kwargs):
     r = redis.from_url(REDIS_URL)
     k = f'{instance.user_id}__keywords'
-    r.delete(k) # TODO: check remove
+    r.delete(k) 
+    k = f'{instance.user_id}_registration'
+    r.delete(k) 
     

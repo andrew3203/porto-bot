@@ -18,10 +18,12 @@ from bot.tasks import send_delay_message
 
 def command_start(update: Update, context: CallbackContext) -> None:
     u, created = User.get_user_and_created(update, context)
-    user_balance = utils.get_user_info(u.user_id, u.deep_link)
-    u.update_info(user_balance)
+
     if u.deep_link:
-        if created:
+        user_balance = utils.get_user_info(u.user_id, u.deep_link)
+        u.update_info(user_balance)
+
+    if created and u.deep_link:
             utils.send_registration(user_code=u.deep_link, user_id=u.user_id)
             update.message.reply_text('Вы успешно зарегистрированы в программе лояльности!')
             update.message.reply_text(
@@ -36,18 +38,14 @@ def command_start(update: Update, context: CallbackContext) -> None:
             now = timezone.now()
             task1 = send_delay_message.apply_async(
                 kwargs={'user_id': u.user_id, 'msg_name': 'Клуб лидеров'}, 
-                countdown=now+datetime.timedelta(seconds=10)#days=1)
+                countdown=now+datetime.timedelta(seconds=60)#days=1)
             )
             task2 = send_delay_message.apply_async(
                 kwargs={'user_id': u.user_id, 'msg_name': 'Колесо Фортуны'},
-                 countdown=now+datetime.timedelta(seconds=20)#days=2)
+                 countdown=now+datetime.timedelta(seconds=540)#days=2)
             )
-        else:
-            recive_command(update, context)
-
-    else:
-        recive_command(update, context)
     
+    recive_command(update, context)
 
 
 def command_balance(update: Update, context: CallbackContext) -> None:
@@ -61,7 +59,6 @@ def command_balance(update: Update, context: CallbackContext) -> None:
 def recive_command(update: Update, context: CallbackContext) -> None:
     user_id = extract_user_data_from_update(update)["user_id"]
     msg_text = update.message.text.replace('/', '') 
-    print(f'recive command {msg_text} from {user_id}')
     prev_state, next_state, prev_message_id = User.get_prev_next_states(user_id, msg_text)
 
     prev_msg_id = utils.send_message(
@@ -71,12 +68,12 @@ def recive_command(update: Update, context: CallbackContext) -> None:
         prev_message_id=prev_message_id
     )
     User.set_message_id(user_id, prev_msg_id)
+    utils.send_logs_message(prev_state)
 
 
 def recive_message(update: Update, context: CallbackContext) -> None:
     user_id = extract_user_data_from_update(update)["user_id"]
     msg_text = update.message.text
-    print(f'recive recive_message from {user_id} {msg_text}')
 
     prev_state, next_state, prev_message_id = User.get_prev_next_states(user_id, msg_text)
 
@@ -87,22 +84,24 @@ def recive_message(update: Update, context: CallbackContext) -> None:
         prev_message_id=prev_message_id
     )
     User.set_message_id(user_id, prev_msg_id)
+    utils.send_logs_message(prev_state)
 
 
 def recive_calback(update: Update, context: CallbackContext) -> None:
     user_id = extract_user_data_from_update(update)["user_id"]
     msg_text = update.callback_query.data
 
-    print(f'recive recive_calback from {user_id} {msg_text}')
     update.callback_query.answer()
-    _, next_state, prev_msg_id = User.get_prev_next_states(user_id, msg_text)
+    prev_state, next_state, prev_message_id = User.get_prev_next_states(user_id, msg_text)
 
-    prev_msg_id = utils.edit_message(
+    prev_msg_id = utils.send_message(
+        prev_state=prev_state,
         next_state=next_state,
         user_id=user_id,
-        update=update
+        prev_message_id=prev_message_id
     )
     User.set_message_id(user_id, prev_msg_id)
+    utils.send_logs_message(prev_state)
 
 
 def receive_poll_answer(update: Update, context) -> None:
@@ -125,6 +124,7 @@ def receive_poll_answer(update: Update, context) -> None:
         prev_message_id=prev_message_id
     )
     User.set_message_id(user_id, prev_msg_id)
+    utils.send_logs_message(prev_state)
 
 
 def forward_from_support(update: Update, context: CallbackContext) -> None:
@@ -161,4 +161,5 @@ def forward_to_support(update: Update, context: CallbackContext) -> None:
         prev_message_id=prev_message_id
     )
     User.set_message_id(user_id, prev_msg_id)
+    utils.send_logs_message(prev_state)
 

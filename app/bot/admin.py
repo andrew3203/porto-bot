@@ -183,7 +183,7 @@ class UserAdmin(admin.ModelAdmin):
             self.message_user(request, f"Менеджер для {len(queryset)} клиентов назначен")
 
         else:
-            form = forms.MakeGroupForm(initial={'_selected_action': user_ids})
+            form = forms.SetOwnerForm(initial={'_selected_action': user_ids})
             return render(
                 request, "admin/set_owner.html", {
                     'form': form, 'title': u'Назначение менеджера'}

@@ -92,7 +92,7 @@ def support_command_with_message(update: Update, context: CallbackContext):
         return
 
     u = User.get_user(update, context)
-    li = f'{u.user_id}, <a href="http://bot.portobello.ru/admin/bot/user/{u.user_id}/change/">{u}</a> {u.owner}'
+    li = f'<a href="http://bot.portobello.ru/admin/bot/user/{u.user_id}/change/">{u.first_name}, {u.last_name}</a>,\n{u.company} {u.phone}\n{u.owner}'
     text = f"{li}\n{update.message.text.replace(f'{support_command} ', '')}"
     context.bot.send_message(
         chat_id=int(TELEGRAM_SUPPORT_CHAT),

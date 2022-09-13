@@ -45,6 +45,7 @@ def _from_celery_entities_to_entities(celery_entities: Optional[List[Dict]] = No
 def _send_message(
     user_id: Union[str, int],
     text: str,
+    photo: str,
     parse_mode: Optional[str] = telegram.ParseMode.HTML,
     reply_markup: Optional[List[List[Dict]]] = None,
     reply_to_message_id: Optional[int] = None,
@@ -53,11 +54,13 @@ def _send_message(
     tg_token: str = TELEGRAM_TOKEN,
 ) -> bool:
     bot = telegram.Bot(tg_token)
+    photo = open(photo, 'rb') if photo else None
     try:
         m = bot.send_message(
             chat_id=user_id,
             text=text,
-            parse_mode=parse_mode,
+            photo=photo,
+            parse_mode=parse_mode, 
             reply_markup=reply_markup,
             reply_to_message_id=reply_to_message_id,
             disable_web_page_preview=disable_web_page_preview,
@@ -81,4 +84,20 @@ def _send_photo(
     photo=file[0] or open(file[1], 'rb')
     m = bot.send_photo(user_id, photo=open(file, 'rb'))
     return m.photo[-1].file_id
+
+
+def _revoke_message(
+    message_id: str,
+    user_id: Union[str, int],
+    tg_token: str = TELEGRAM_TOKEN
+) -> bool:
+    bot = telegram.Bot(tg_token)
+
+    bot.delete_message(
+        chat_id=user_id,
+        message_id=message_id
+    )
+
+
+
     

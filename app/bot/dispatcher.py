@@ -107,7 +107,7 @@ def set_up_commands(bot_instance: Bot) -> None:
         'en': {
             'start': 'Run bot 🚀',
             'balance': 'Check my balance',
-            'products': 'Product questions',
+            'problem': 'Have a problem',
             'stock': 'Portobello stock', 
             'loyalty_program': 'Loyalty program',
             'support': 'Text to Pavel 👥',
@@ -115,7 +115,7 @@ def set_up_commands(bot_instance: Bot) -> None:
         'ru': {
             'start': 'Запустить бота 🚀',
             'balance': 'Баланс моих бонусов',
-            'products': 'Вопросы по продукции',
+            'problem': 'У меня вопрос/проблема',
             'stock': 'Акции Portobello',
             'loyalty_program': 'Программа лояльности',
             'support': 'Написать Павлу 👥',
