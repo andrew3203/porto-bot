@@ -607,4 +607,6 @@ def remove_user_states(sender, instance, **kwargs):
     r.delete(k) 
     k = f'{instance.user_id}_registration'
     r.delete(k) 
+    k = f'{instance.user_id}'
+    r.delete(k) 
     
