@@ -58,28 +58,28 @@ def get_message_text(text, user_keywords):
     return text
 
 
-def send_poll(context, update, text, markup):
-    questions = ["Good", "Really good", "Fantastic", "Great"]
+def send_poll(user_id, poll_id, text, markup, context):
+    questions = [m[0] for m in markup]
     message = context.bot.send_poll(
-        update.effective_chat.id,
-        "How are you?",
+        user_id,
+        text,
         questions,
         is_anonymous=False,
         allows_multiple_answers=False,
     )
-    # Save some info about the poll the bot_data for later use in receive_poll_answer
     payload = {
         message.poll.id: {
+            'poll_id': poll_id,
             "questions": questions,
             "message_id": message.message_id,
-            "chat_id": update.effective_chat.id,
-            "answers": 0,
+            "chat_id": user_id,
+            #"answers": 0,
         }
     }
     context.bot_data.update(payload)
 
 
-def send_message(prev_state, next_state, user_id, prev_message_id):
+def send_message(prev_state, next_state, context, user_id, prev_message_id):
     prev_msg_type = prev_state["message_type"] if prev_state else None
     next_msg_type = next_state["message_type"]
 
@@ -97,17 +97,23 @@ def send_message(prev_state, next_state, user_id, prev_message_id):
     elif len(photos) == 1:
         photo = photos.pop(0)
     else:
-        photo == None
+        photo = None
     
 
-    if prev_msg_type != MessageType.POLL and prev_message_id and prev_message_id != '':
+    if prev_message_id and prev_message_id != '':
         _revoke_message(
             user_id=user_id,
             message_id=prev_message_id
         )
     
     if next_msg_type == MessageType.POLL:
-        send_poll(text=message_text, markup=markup)
+        send_poll(
+            user_id, 
+            poll_id=next_state['poll_id'], 
+            text='Опрос', 
+            markup=markup, 
+            context=context
+        )
         message_id = None
 
     else:

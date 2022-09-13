@@ -474,12 +474,19 @@ class Message(CreateUpdateTracker):
                 btn_query_name = self.encode_msg_name(btn)
                 ways[btn_query_name] = msg_dict[btn_query_name]
 
-        return {
+        res = {
             'message_type': self.message_type,
             'text': self.text[:end_text],
             'markup': markup,
             'ways': ways
         }
+        if self.message_type == MessageType.POLL:
+            poll = Poll.objects.create(message=self)
+            poll.answers = ': 0\n'.join([m[0] for m in markup])
+            poll.save()
+            res['poll_id'] = poll.pk
+        return res
+
     
     def make_cash(self):
         common_ways = {}
@@ -551,6 +558,17 @@ class Poll(CreateUpdateTracker):
 
     def __str__(self) -> str:
         return f'Ответы на опрос: {self.message.name}'
+    
+    @staticmethod
+    def update_poll(poll_id, answer):
+        poll = Poll.objects.get(pk=poll_id)
+        res = ''
+        for ans in poll.answers.split('\n'):
+            ans_name, num = ans.split(': ')
+            num = int(num) + 1 if ans_name == answer else num
+            res.append(f'{ans_name}: {num}\n')
+        poll.answers = res
+        poll.save()
 
 
 class Broadcast(CreateTracker):

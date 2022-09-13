@@ -39,11 +39,17 @@ def setup_dispatcher(dp):
     dp.add_handler(CommandHandler('export_users',admin_handlers.export_users))
     
     # broadcast message
-    dp.add_handler(MessageHandler(Filters.regex(rf'^{broadcast_command}(/s)?.*'), broadcast_handlers.broadcast_command_with_message))
+    dp.add_handler(MessageHandler(
+        Filters.regex(rf'^{broadcast_command}(/s)?.*') | Filters.caption_entity(f'{broadcast_command}'),
+        broadcast_handlers.broadcast_command_with_message)
+    )
     dp.add_handler(CallbackQueryHandler(broadcast_handlers.broadcast_decision_handler, pattern=f"^{CONFIRM_DECLINE_BROADCAST}"))
 
     # forward user question to support chat
-    dp.add_handler(MessageHandler(Filters.regex(rf'^{support_command}(/s)?.*'), broadcast_handlers.support_command_with_message))
+    dp.add_handler(MessageHandler(
+        Filters.regex(rf'^{support_command}(/s)?.*') | Filters.caption_entity(f'{support_command}'), 
+        broadcast_handlers.support_command_with_message)
+    )
     
     # products  ,  stock  ,  loyalty_program  ,  support
     dp.add_handler(MessageHandler(Filters.command, chat.recive_command))
@@ -58,7 +64,7 @@ def setup_dispatcher(dp):
     dp.add_handler(PollAnswerHandler(chat.receive_poll_answer))
 
     # files for admins
-    dp.add_handler(MessageHandler(Filters.animation, files.show_file_id))
+    dp.add_handler(MessageHandler(Filters.photo, files.show_file_id))
 
     # forward answers from admin support chat to user
     dp.add_handler(MessageHandler(Filters.chat(chat_id=int(TELEGRAM_SUPPORT_CHAT)), chat.forward_from_support))

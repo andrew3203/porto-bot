@@ -8,7 +8,7 @@ from django.utils import timezone
 from telegram import ParseMode, Update
 from telegram.ext import CallbackContext
 
-from bot.models import User
+from bot.models import User, Poll
 from bot.handlers.utils import utils
 from bot.handlers.utils.info import extract_user_data_from_update
 from bot.tasks import send_delay_message
@@ -68,6 +68,7 @@ def recive_command(update: Update, context: CallbackContext) -> None:
     prev_msg_id = utils.send_message(
         prev_state=prev_state,
         next_state=next_state,
+        context=context,
         user_id=user_id,
         prev_message_id=prev_message_id
     )
@@ -84,6 +85,7 @@ def recive_message(update: Update, context: CallbackContext) -> None:
     prev_msg_id = utils.send_message(
         prev_state=prev_state,
         next_state=next_state,
+        context=context,
         user_id=user_id,
         prev_message_id=prev_message_id
     )
@@ -101,6 +103,7 @@ def recive_calback(update: Update, context: CallbackContext) -> None:
     prev_msg_id = utils.send_message(
         prev_state=prev_state,
         next_state=next_state,
+        context=context,
         user_id=user_id,
         prev_message_id=prev_message_id
     )
@@ -113,17 +116,20 @@ def receive_poll_answer(update: Update, context) -> None:
     answer = update.poll_answer
     answered_poll = context.bot_data[answer.poll_id]
 
-    context.bot.stop_poll(
-        answered_poll["chat_id"], answered_poll["message_id"])
+    context.bot.stop_poll(answered_poll["chat_id"], answered_poll["message_id"])
+    
+    Poll.update_poll(answered_poll["poll_id"],answer=answer)
+
 
     user_id = extract_user_data_from_update(update)["user_id"]
-    msg_text = answered_poll.lower().replace(' ', '')
+    msg_text = answer.lower().replace(' ', '')
 
     prev_state, next_state, prev_message_id = User.get_prev_next_states(user_id, msg_text)
 
     prev_msg_id = utils.send_message(
         prev_state=prev_state,
         next_state=next_state,
+        context=context,
         user_id=user_id,
         prev_message_id=prev_message_id
     )
@@ -147,10 +153,7 @@ def forward_from_support(update: Update, context: CallbackContext) -> None:
     update.effective_chat.send_message(
         text='Cообщение отправлено',
     )
-    #except Exception as e:
-    #   update.effective_chat.send_message(
-    #        text='Ошибка',
-    #    )
+
 
 
 def forward_to_support(update: Update, context: CallbackContext) -> None:
@@ -161,6 +164,7 @@ def forward_to_support(update: Update, context: CallbackContext) -> None:
     prev_msg_id = utils.send_message(
         prev_state=prev_state,
         next_state=next_state,
+        context=context,
         user_id=user_id,
         prev_message_id=prev_message_id
     )
