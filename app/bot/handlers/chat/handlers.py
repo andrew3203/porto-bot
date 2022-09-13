@@ -68,7 +68,7 @@ def recive_command(update: Update, context: CallbackContext) -> None:
         prev_message_id=prev_message_id
     )
     User.set_message_id(user_id, prev_msg_id)
-    utils.send_logs_message(prev_state, msg_text,next_state['user_keywords'])
+    utils.send_logs_message(msg_text, next_state['user_keywords'])
 
 
 def recive_message(update: Update, context: CallbackContext) -> None:
@@ -84,7 +84,7 @@ def recive_message(update: Update, context: CallbackContext) -> None:
         prev_message_id=prev_message_id
     )
     User.set_message_id(user_id, prev_msg_id)
-    utils.send_logs_message(prev_state, msg_text, next_state['user_keywords'])
+    utils.send_logs_message(msg_text, next_state['user_keywords'])
 
 
 def recive_calback(update: Update, context: CallbackContext) -> None:
@@ -101,7 +101,7 @@ def recive_calback(update: Update, context: CallbackContext) -> None:
         prev_message_id=prev_message_id
     )
     User.set_message_id(user_id, prev_msg_id)
-    utils.send_logs_message(prev_state, msg_text, next_state['user_keywords'])
+    utils.send_logs_message(msg_text, next_state['user_keywords'])
 
 
 def receive_poll_answer(update: Update, context) -> None:
@@ -124,7 +124,7 @@ def receive_poll_answer(update: Update, context) -> None:
         prev_message_id=prev_message_id
     )
     User.set_message_id(user_id, prev_msg_id)
-    utils.send_logs_message(prev_state, msg_text, next_state['user_keywords'])
+    utils.send_logs_message(answered_poll, next_state['user_keywords'])
 
 
 def forward_from_support(update: Update, context: CallbackContext) -> None:
@@ -161,5 +161,5 @@ def forward_to_support(update: Update, context: CallbackContext) -> None:
         prev_message_id=prev_message_id
     )
     User.set_message_id(user_id, prev_msg_id)
-    utils.send_logs_message(prev_state, msg_text, next_state['user_keywords'])
+    utils.send_logs_message(msg_text, next_state['user_keywords'])
 

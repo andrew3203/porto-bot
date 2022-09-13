@@ -90,7 +90,7 @@ def send_message(prev_state, next_state, user_id, prev_message_id):
     )
 
     photos = next_state.get("photos", [])
-    photo = photos.pop(0) if len(photos) > 0 else (None, None)
+    photo = photos.pop(0) if len(photos) > 0 else None
 
     for file in photos:
         _send_photo(file,  user_id=user_id)
@@ -118,7 +118,7 @@ def send_message(prev_state, next_state, user_id, prev_message_id):
         message_id = _send_message(
             user_id=user_id,
             text=message_text,
-            photo=photo[1],
+            photo=photo,
             reply_markup=reply_markup
         )
 
@@ -163,16 +163,10 @@ def send_broadcast_message(next_state, user_id):
     return prev_msg_id
 
 
-def send_logs_message(prev_state, msg_text, user_keywords):
-    if prev_state:
-        text = prev_state["ways"][msg_text] + \
-            '\n\n <b>first_name last_name</b>\n' \
-            'company, phone'
-        
-    else:
-        text = '/start' + \
-            '\n\n <b>first_name last_name</b>\n' \
-            'company, phone'
+def send_logs_message(msg_text, user_keywords):
+    text = f'{msg_text}' + \
+        '\n\n <b>first_name last_name</b>\n' \
+        'company, phone'
     
     message_text = get_message_text(text, user_keywords)
     _send_message(

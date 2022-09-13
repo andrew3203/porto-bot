@@ -45,7 +45,7 @@ def _from_celery_entities_to_entities(celery_entities: Optional[List[Dict]] = No
 def _send_message(
     user_id: Union[str, int],
     text: str,
-    photo: str,
+    photo: str = None,
     parse_mode: Optional[str] = telegram.ParseMode.HTML,
     reply_markup: Optional[List[List[Dict]]] = None,
     reply_to_message_id: Optional[int] = None,
@@ -56,10 +56,11 @@ def _send_message(
     bot = telegram.Bot(tg_token)
     try:
         if photo:
+            photo=photo[0] or open(photo[1], 'rb')
             m = bot.send_photo(
                 chat_id=user_id,
                 text=text,
-                photo=open(photo, 'rb'),
+                photo=photo,
                 parse_mode=parse_mode, 
                 reply_markup=reply_markup,
                 reply_to_message_id=reply_to_message_id,
