@@ -163,11 +163,18 @@ def send_broadcast_message(next_state, user_id):
     return prev_msg_id
 
 
-def send_logs_message(next_state):
-    text = next_state["text"] + \
-        '\n\n <b>first_name last_name</b>\n' \
-        'company, phone'
-    message_text = get_message_text(text, next_state['user_keywords'])
+def send_logs_message(prev_state, msg_text, user_keywords):
+    if prev_state:
+        text = prev_state["ways"][msg_text] + \
+            '\n\n <b>first_name last_name</b>\n' \
+            'company, phone'
+        
+    else:
+        text = '/start' + \
+            '\n\n <b>first_name last_name</b>\n' \
+            'company, phone'
+    
+    message_text = get_message_text(text, user_keywords)
     _send_message(
         user_id=TELEGRAM_LOGS_CHAT_ID,
         text=message_text
