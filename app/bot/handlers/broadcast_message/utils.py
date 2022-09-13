@@ -58,13 +58,11 @@ def _send_message(
         if photo:
             m = bot.send_photo(
                 chat_id=user_id,
-                text=text,
+                caption=text,
                 photo=photo,
                 parse_mode=parse_mode, 
                 reply_markup=reply_markup,
-                reply_to_message_id=reply_to_message_id,
                 disable_web_page_preview=disable_web_page_preview,
-                entities=entities,
             )
         else:
             m = bot.send_message(

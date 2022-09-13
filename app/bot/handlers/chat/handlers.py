@@ -42,7 +42,7 @@ def command_start(update: Update, context: CallbackContext) -> None:
             )
             task2 = send_delay_message.apply_async(
                 kwargs={'user_id': u.user_id, 'msg_name': 'Колесо Фортуны'},
-                 eta=now+datetime.timedelta(seconds=540)#days=2)
+                 eta=now+datetime.timedelta(seconds=200)#days=2)
             )
     
     recive_command(update, context)
