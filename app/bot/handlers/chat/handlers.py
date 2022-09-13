@@ -1,4 +1,5 @@
 import datetime
+from email import message
 import logging
 import re
 from django.utils import timezone
@@ -7,12 +8,9 @@ from django.utils import timezone
 from telegram import ParseMode, Update
 from telegram.ext import CallbackContext
 
-from bot.handlers.onboarding import static_text
-from bot.models import Message, User
-from bot.handlers.onboarding.keyboards import make_keyboard_for_start_command
+from bot.models import User
 from bot.handlers.utils import utils
 from bot.handlers.utils.info import extract_user_data_from_update
-from telegram import ReplyKeyboardRemove
 from bot.tasks import send_delay_message
 
 
@@ -33,9 +31,14 @@ def command_start(update: Update, context: CallbackContext) -> None:
                 "Мой бот будет присылать вам всю необходимую информацию в рамках программы, а иногда я лично " \
                 "буду писать вам и рассказывать о наших новых возможностях, акциях и эксклюзивных предложениях! 😎\n\n" \
                 "Если у вас возникнут вопросы по программе, пишите боту. Он передаст мне всю информацию, " \
-                "и в ближайшее время я с вами свяжусь!"
+                "и в ближайшее время я с вами свяжусь!",
             )
             now = timezone.now()
+            send_delay_message.apply_async(
+                  kwargs={'user_id': u.user_id, 'msg_name': 'start'}, 
+                eta=now+datetime.timedelta(seconds=30)
+            )
+            utils.send_logs_message('start', u.get_keywords())
             task1 = send_delay_message.apply_async(
                 kwargs={'user_id': u.user_id, 'msg_name': 'Клуб лидеров'}, 
                 eta=now+datetime.timedelta(seconds=60)#days=1)
@@ -44,8 +47,9 @@ def command_start(update: Update, context: CallbackContext) -> None:
                 kwargs={'user_id': u.user_id, 'msg_name': 'Колесо Фортуны'},
                  eta=now+datetime.timedelta(seconds=200)#days=2)
             )
-    
-    recive_command(update, context)
+            
+    else:
+        recive_command(update, context)
 
 
 def command_balance(update: Update, context: CallbackContext) -> None:

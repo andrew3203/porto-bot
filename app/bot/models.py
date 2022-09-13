@@ -185,7 +185,7 @@ class User(CreateUpdateTracker):
             self.first_name: ['first_name'],
             self.username: ['username'],
             self.position: ['position'],
-            self.company if len(self.company) > 1 else '-': ['company'],
+            self.company if len(self.company) > 1 else '--': ['company'],
             self.phone if self.phone else '-': ['phone']
         }
         if len(q) > 0:
@@ -511,6 +511,8 @@ class Message(CreateUpdateTracker):
 
         cash = {}
         cash['start'] = common_ways['start']
+        cash['error'] = common_ways.pop('error')
+        cash['error'] = common_ways.pop('error')
         cash['error'] = common_ways.pop('error')
         cash['registration_error'] = common_ways.pop('registration_error')
 

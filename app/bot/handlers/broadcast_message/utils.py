@@ -62,7 +62,6 @@ def _send_message(
                 photo=photo,
                 parse_mode=parse_mode, 
                 reply_markup=reply_markup,
-                disable_web_page_preview=disable_web_page_preview,
             )
         else:
             m = bot.send_message(
@@ -100,11 +99,13 @@ def _revoke_message(
     tg_token: str = TELEGRAM_TOKEN
 ) -> bool:
     bot = telegram.Bot(tg_token)
-
-    bot.delete_message(
-        chat_id=user_id,
-        message_id=message_id
-    )
+    try:
+        bot.delete_message(
+            chat_id=user_id,
+            message_id=message_id
+        )
+    except Exception as e:
+        pass
 
 
 

@@ -90,5 +90,5 @@ def send_delay_message(user_id, msg_name):
         prev_message_id=prev_message_id
     )
     User.set_message_id(user_id, prev_msg_id)
-    print(f'{user_id} done')
+
 
