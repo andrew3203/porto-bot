@@ -563,7 +563,7 @@ class Poll(CreateUpdateTracker):
     def update_poll(poll_id, answer):
         poll = Poll.objects.get(pk=poll_id)
         res = ''
-        for ans in poll.answers.split('\n'):
+        for ans in poll.answers.split('\n')[:-1]:
             ans_name, num = ans.split(': ')
             num = int(num) + 1 if ans_name.lower().replace(' ', '') == answer else num
             res += f'{ans_name}: {num}\n'
