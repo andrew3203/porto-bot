@@ -163,7 +163,7 @@ def send_broadcast_message(next_state, user_id):
 
 
 def send_logs_message(msg_text, user_keywords, markup):
-    decoder = {(k[0][0].replace(' ', '').lower(), k[0][0]) for k in markup}
+    decoder = dict([(k[0][0].replace(' ', '').lower(), k[0][0]) for k in markup])
     msg_text = decoder.get('msg_text', msg_text)
     text = f'{msg_text}' + \
         '\n\n<b>first_name last_name</b>\n' \
