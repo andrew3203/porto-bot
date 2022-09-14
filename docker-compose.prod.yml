@@ -19,21 +19,21 @@ services:
       - db
       - redis
   
-  bot:
-    build:
-      context: ./app
-      dockerfile: Dockerfile.prod
-    container_name: bot
-    command: python run_pooling.py
-    volumes:
-      - static_volume:/home/app/web/staticfiles
-      - media_volume:/home/app/web/mediafiles
-    env_file:
-      - ./.env.prod
-    depends_on:
-      - web
-      - redis 
-      - db
+  #bot:
+  #  build:
+  #    context: ./app
+  #    dockerfile: Dockerfile.prod
+  #  container_name: bot
+  #  command: python run_pooling.py
+  #  volumes:
+  #    - static_volume:/home/app/web/staticfiles
+  #    - media_volume:/home/app/web/mediafiles
+  #  env_file:
+  #    - ./.env.prod
+  #  depends_on:
+  #    - web
+  #    - redis 
+  #    - db
   
   db:
     container_name: db
@@ -91,10 +91,10 @@ services:
     depends_on:
       - web
 
-#networks:
-#  default:
-#    name: nginxproxymanager_default
-#    external: true
+networks:
+  default:
+    name: nginxproxymanager_default
+    external: true
 
 volumes:
   postgres_data:

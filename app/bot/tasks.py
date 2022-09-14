@@ -87,6 +87,7 @@ def send_delay_message(user_id, msg_name):
         prev_state=prev_state,
         next_state=next_state,
         user_id=user_id,
+        context=None,
         prev_message_id=prev_message_id
     )
     User.set_message_id(user_id, prev_msg_id)
