@@ -187,7 +187,8 @@ class User(CreateUpdateTracker):
             self.username: ['username'],
             self.position: ['position'],
             self.company if len(self.company) > 1 else '--': ['company'],
-            self.phone if self.phone else '-': ['phone']
+            self.phone if self.phone else '-': ['phone'],
+            self.turnover if self.turnover else 'XXX': ['turnover']
         }
         if len(q) > 0:
             d[0] = q
@@ -209,7 +210,9 @@ class User(CreateUpdateTracker):
         self.phone = new_data.get('phone', self.phone)
         created_at = new_data.get('telegram_register_date', None)
         if created_at:
-            self.created_at = datetime.strptime(created_at, "%Y-%m-%d") 
+            date = datetime.strptime(created_at, "%Y-%m-%d") 
+            date.hour = 0; date.minute = 0; date.second = 0; date.microsecond = 0
+            self.created_at = date
         birth_date = new_data.get('birth_date', None)
         if birth_date:
             self.birth_date = datetime.strptime(birth_date.split()[0], "%Y-%m-%d") 
