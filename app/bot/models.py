@@ -499,8 +499,6 @@ class Message(CreateUpdateTracker):
         cash = {}
         cash['start'] = common_ways['start']
         cash['error'] = common_ways.pop('error')
-        cash['колесофортуны'] = common_ways.pop('колесофортуны')
-        cash['клублидеров'] = common_ways.pop('клублидеров')
         cash['registration_error'] = common_ways.pop('registration_error')
 
         data = self.parse_message()
@@ -523,8 +521,6 @@ class Message(CreateUpdateTracker):
 
         cash = {}
         cash['start'] = common_ways['start']
-        cash['колесофортуны'] = common_ways.pop('колесофортуны')
-        cash['клублидеров'] = common_ways.pop('клублидеров')
         cash['error'] = common_ways.pop('error')
         cash['registration_error'] = common_ways.pop('registration_error')
 
@@ -570,7 +566,7 @@ class Poll(CreateUpdateTracker):
         for ans in poll.answers.split('\n'):
             ans_name, num = ans.split(': ')
             num = int(num) + 1 if ans_name.lower().replace(' ', '') == answer else num
-            res.append(f'{ans_name}: {num}\n')
+            res += f'{ans_name}: {num}\n'
         poll.answers = res
         poll.save()
 
