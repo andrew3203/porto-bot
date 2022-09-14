@@ -167,13 +167,14 @@ class User(CreateUpdateTracker):
         t = []
         if self.position == '':
             t.append('position')
-        if self.first_name == '':
+        if self.first_name == '' or self.first_name is None:
             t.append('first_name')
-        if self.last_name == '':
+        if self.last_name == '' or self.last_name is None:
             t.append('last_name')
 
         birth_date = self.birth_date.strftime("%y.%m.%d") if self.birth_date else '2000.02.02'
         d =  {
+            self.user_id: ['user_id'],
             self.deep_link: ['user_code'],
             self.free_cashback: ['free_cashback'],
             self.rating_place: ['rating_place'],

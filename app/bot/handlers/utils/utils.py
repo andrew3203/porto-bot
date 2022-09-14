@@ -166,8 +166,10 @@ def send_logs_message(msg_text, user_keywords, markup):
     decoder = dict([(k[0][0].replace(' ', '').lower(), k[0][0]) for k in markup])
     msg_text = decoder.get('msg_text', msg_text)
     text = f'{msg_text}' + \
-        '\n\n<b>first_name last_name</b>\n' \
-        'company, phone'
+        '\n\n' \
+        '<b>first_name last_name (user_id)</b>\n' \
+        'company\n' \
+        'phone'
     
     message_text = get_message_text(text, user_keywords)
     _send_message(

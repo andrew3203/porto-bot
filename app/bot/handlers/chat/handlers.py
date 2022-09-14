@@ -23,7 +23,7 @@ def command_start(update: Update, context: CallbackContext) -> None:
 
     if created and u.deep_link:
             utils.send_registration(user_code=u.deep_link, user_id=u.user_id)
-            update.message.reply_text('Вы успешно зарегистрированы в программе лояльности!')
+            update.message.reply_text(f'{u.first_name}, Вы успешно зарегистрированы в программе лояльности!')
             update.message.reply_text(
                 text="👋 Привет! Давайте знакомиться!\n\n" \
                 "Меня зовут Павел, и я отвечаю за нашу программу лояльности.\n" \
