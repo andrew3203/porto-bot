@@ -202,7 +202,14 @@ class User(CreateUpdateTracker):
         self.free_gold_tickets = new_data.get('free_gold_tickets', self.free_gold_tickets)
         self.rating_place = new_data.get('rating_place', self.rating_place)
         self.position = new_data.get('position', self.position)
-
+        self.first_name = new_data.get('first_name', self.first_name)
+        self.last_name = new_data.get('last_name', self.last_name)
+        self.deep_link = new_data.get('code_person', self.deep_link)
+        self.company = new_data.get('company_name', self.company)
+        self.phone = new_data.get('phone', self.phone)
+        created_at = new_data.get('telegram_register_date', None)
+        if created_at:
+            self.created_at = datetime.strptime(created_at, "%Y-%m-%d") 
         birth_date = new_data.get('birth_date', None)
         if birth_date:
             self.birth_date = datetime.strptime(birth_date.split()[0], "%Y-%m-%d") 

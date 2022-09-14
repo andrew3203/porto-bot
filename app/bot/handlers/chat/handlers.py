@@ -35,13 +35,13 @@ def command_start(update: Update, context: CallbackContext) -> None:
             )
             now = timezone.now()
             send_delay_message.apply_async(
-                  kwargs={'user_id': u.user_id, 'msg_name': 'start'}, 
+                kwargs={'user_id': u.user_id, 'msg_name': 'start'}, 
                 eta=now+datetime.timedelta(seconds=10)
             )
             utils.send_logs_message(
                 msg_text='start', 
                 user_keywords=u.get_keywords(), 
-                markup=[]
+                prev_state=None
             )
             task1 = send_delay_message.apply_async(
                 kwargs={'user_id': u.user_id, 'msg_name': 'Клуб лидеров'}, 
@@ -80,7 +80,7 @@ def recive_command(update: Update, context: CallbackContext) -> None:
     utils.send_logs_message(
         msg_text=msg_text, 
         user_keywords=next_state['user_keywords'], 
-        markup=prev_state.get("markup", [])
+        prev_state=prev_state
     )
 
 
@@ -101,7 +101,7 @@ def recive_message(update: Update, context: CallbackContext) -> None:
     utils.send_logs_message(
         msg_text=msg_text, 
         user_keywords=next_state['user_keywords'], 
-        markup=prev_state.get("markup", [])
+        prev_state=prev_state
     )
 
 
@@ -123,7 +123,7 @@ def recive_calback(update: Update, context: CallbackContext) -> None:
     utils.send_logs_message(
         msg_text=msg_text, 
         user_keywords=next_state['user_keywords'], 
-        markup=prev_state.get("markup", [])
+        prev_state=prev_state
     )
 
 
@@ -152,7 +152,7 @@ def receive_poll_answer(update: Update, context) -> None:
     utils.send_logs_message(
         msg_text=msg_text, 
         user_keywords=next_state['user_keywords'], 
-        markup=prev_state.get("markup", [])
+        prev_state=prev_state
     )
 
 
@@ -191,6 +191,6 @@ def forward_to_support(update: Update, context: CallbackContext) -> None:
     utils.send_logs_message(
         msg_text=msg_text, 
         user_keywords=next_state['user_keywords'], 
-        markup=prev_state.get("markup", [])
+        prev_state=prev_state
     )
 
