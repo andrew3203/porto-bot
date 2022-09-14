@@ -317,7 +317,7 @@ class PollAdmin(admin.ModelAdmin):
             ),
         })
     )
-    readonly_fields = ('created_at','updated_at')
+    readonly_fields = ('created_at','updated_at', 'answers')
 
 
 #@admin.register(models.Group)

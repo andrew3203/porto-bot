@@ -481,9 +481,11 @@ class Message(CreateUpdateTracker):
             'ways': ways
         }
         if self.message_type == MessageType.POLL:
-            poll = Poll.objects.create(message=self)
-            poll.answers = ': 0\n'.join([m[0][0] for m in markup]) + ': 0\n'
-            poll.save()
+            poll = Poll.objects.filter(message=self).first()
+            if poll is None:
+                poll = Poll.objects.create(message=self)
+                poll.answers = ': 0\n'.join([m[0][0] for m in markup]) + ': 0\n'
+                poll.save()
             res['poll_id'] = poll.pk
         return res
 
@@ -567,7 +569,7 @@ class Poll(CreateUpdateTracker):
         res = ''
         for ans in poll.answers.split('\n'):
             ans_name, num = ans.split(': ')
-            num = int(num) + 1 if ans_name == answer else num
+            num = int(num) + 1 if ans_name.lower().replace(' ', '') == answer else num
             res.append(f'{ans_name}: {num}\n')
         poll.answers = res
         poll.save()

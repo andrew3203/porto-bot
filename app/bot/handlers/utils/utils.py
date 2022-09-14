@@ -1,15 +1,5 @@
-import imp
-import asyncio
-from re import M
-import redis
 from bot.models import MessageType
-from bot.tasks import update_photo
-
-import datetime
-import logging
-import telegram
-
-from portobello.settings import TELEGRAM_TOKEN, TELEGRAM_LOGS_CHAT_ID
+from portobello.settings import TELEGRAM_LOGS_CHAT_ID
 
 from flashtext import KeywordProcessor
 from django.utils import timezone
@@ -18,9 +8,7 @@ from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     KeyboardButton,
-    Poll, ParseMode,
     ReplyKeyboardMarkup,
-    ReplyKeyboardRemove,
 )
 import requests
 
@@ -93,7 +81,7 @@ def send_message(prev_state, next_state, context, user_id, prev_message_id):
 
     if len(photos) > 1:
         _send_media_group(photos, user_id=user_id)
-        photo == None
+        photo = None
     elif len(photos) == 1:
         photo = photos.pop(0)
     else:

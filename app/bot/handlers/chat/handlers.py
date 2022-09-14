@@ -112,16 +112,15 @@ def recive_calback(update: Update, context: CallbackContext) -> None:
 
 
 def receive_poll_answer(update: Update, context) -> None:
-    # TODO: check
     answer = update.poll_answer
     answered_poll = context.bot_data[answer.poll_id]
 
     context.bot.stop_poll(answered_poll["chat_id"], answered_poll["message_id"])
     
-    Poll.update_poll(answered_poll["poll_id"],answer=answer)
+    Poll.update_poll(answered_poll["poll_id"], answer=answer)
 
-
-    user_id = extract_user_data_from_update(update)["user_id"]
+    
+    user_id = answered_poll['chat_id']
     msg_text = answer.lower().replace(' ', '')
 
     prev_state, next_state, prev_message_id = User.get_prev_next_states(user_id, msg_text)
