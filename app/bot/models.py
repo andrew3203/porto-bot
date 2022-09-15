@@ -17,6 +17,7 @@ from telegram.ext import CallbackContext
 from portobello.settings import MSG_PRIMARY_NAMES, REDIS_URL
 from bot.handlers.utils.info import extract_user_data_from_update
 from utils.models import CreateUpdateTracker, CreateTracker, nb, GetOrNoneManager
+from bot.handlers.broadcast_message.static_text import rating_place_top, rating_place_middle, rating_place_outside
 
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
@@ -164,7 +165,6 @@ class User(CreateUpdateTracker):
             self.user_id: ['user_id'],
             self.deep_link: ['user_code'],
             self.free_cashback: ['free_cashback'],
-            self.rating_place: ['rating_place'],
             self.all_time_cashback: ['all_time_cashback'],
             self.all_time_gold_tickets: ['all_time_gold_tickets'],
             self.free_gold_tickets: ['free_gold_tickets'],
@@ -181,6 +181,15 @@ class User(CreateUpdateTracker):
             d[0] = q
         if len(t) > 0:
             d[''] = t
+        
+        if 100 > self.rating_place > 1:
+            text = rating_place_top
+        elif self.rating_place > 101:
+            text = rating_place_middle.format(rating_place=self.rating_place)
+        else:
+            text = rating_place_outside
+        d[text] = ['rating_place']
+
         return d
 
     def update_info(self, new_data):
