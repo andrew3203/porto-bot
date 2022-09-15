@@ -209,9 +209,7 @@ class User(CreateUpdateTracker):
         self.phone = new_data.get('phone', self.phone)
         created_at = new_data.get('telegram_register_date', None)
         if created_at:
-            date = datetime.strptime(created_at, "%Y-%m-%d") 
-            date.hour = 0; date.minute = 0; date.second = 0; date.microsecond = 0
-            self.created_at = date
+            self.created_at = datetime.strptime(created_at, "%Y-%m-%d") 
         birth_date = new_data.get('birth_date', None)
         if birth_date:
             self.birth_date = datetime.strptime(birth_date.split()[0], "%Y-%m-%d") 
