@@ -1,5 +1,4 @@
 from __future__ import annotations
-from email import message
 from random import randint
 import cyrtranslit
 import emoji
@@ -12,17 +11,17 @@ from datetime import datetime, timedelta
 
 from django.db import models
 from django.db.models import QuerySet, Manager
-from telegram import Update, Video
+from telegram import Update
 from telegram.ext import CallbackContext
 
-from portobello.settings import DEBUG, MSG_PRIMARY_NAMES
+from portobello.settings import MSG_PRIMARY_NAMES, REDIS_URL
 from bot.handlers.utils.info import extract_user_data_from_update
 from utils.models import CreateUpdateTracker, CreateTracker, nb, GetOrNoneManager
 
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 import redis
-from portobello.settings import REDIS_URL
+
 
 
 class AdminUserManager(Manager):

@@ -130,30 +130,32 @@ def recive_calback(update: Update, context: CallbackContext) -> None:
 def receive_poll_answer(update: Update, context) -> None:
     answer = update.poll_answer
     answered_poll = context.bot_data[answer.poll_id]
+    if len(answer.option_ids) > 0:
+        answer_text = answered_poll['questions'][answer.option_ids[0]]
+   
+        context.bot.stop_poll(answered_poll["chat_id"], answered_poll["message_id"])
+        
+        Poll.update_poll(answered_poll["poll_id"], answer=answer_text)
 
-    context.bot.stop_poll(answered_poll["chat_id"], answered_poll["message_id"])
-    
-    Poll.update_poll(answered_poll["poll_id"], answer=answer)
+        
+        user_id = answered_poll['chat_id']
+        msg_text = answer_text.lower().replace(' ', '')
 
-    
-    user_id = answered_poll['chat_id']
-    msg_text = answer.lower().replace(' ', '')
+        prev_state, next_state, prev_message_id = User.get_prev_next_states(user_id, msg_text)
 
-    prev_state, next_state, prev_message_id = User.get_prev_next_states(user_id, msg_text)
-
-    prev_msg_id = utils.send_message(
-        prev_state=prev_state,
-        next_state=next_state,
-        context=context,
-        user_id=user_id,
-        prev_message_id=prev_message_id
-    )
-    User.set_message_id(user_id, prev_msg_id)
-    utils.send_logs_message(
-        msg_text=msg_text, 
-        user_keywords=next_state['user_keywords'], 
-        prev_state=prev_state
-    )
+        prev_msg_id = utils.send_message(
+            prev_state=prev_state,
+            next_state=next_state,
+            context=context,
+            user_id=user_id,
+            prev_message_id=prev_message_id
+        )
+        User.set_message_id(user_id, prev_msg_id)
+        utils.send_logs_message(
+            msg_text=msg_text, 
+            user_keywords=next_state['user_keywords'], 
+            prev_state=prev_state
+        )
 
 
 def forward_from_support(update: Update, context: CallbackContext) -> None:
