@@ -575,7 +575,7 @@ class Poll(CreateUpdateTracker):
         res = ''
         for ans in poll.answers.split('\n')[:-1]:
             ans_name, num = ans.split(': ')
-            num = int(num) + 1 if ans_name.lower().replace(' ', '') == answer else num
+            num = int(num) + 1 if ans_name == answer else num
             res += f'{ans_name}: {num}\n'
         poll.answers = res
         poll.save()

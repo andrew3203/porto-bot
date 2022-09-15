@@ -45,11 +45,11 @@ def command_start(update: Update, context: CallbackContext) -> None:
             )
             task1 = send_delay_message.apply_async(
                 kwargs={'user_id': u.user_id, 'msg_name': 'Клуб лидеров'}, 
-                eta=now+datetime.timedelta(seconds=60)#days=1)
+                eta=now+datetime.timedelta(days=1)
             )
             task2 = send_delay_message.apply_async(
                 kwargs={'user_id': u.user_id, 'msg_name': 'Колесо Фортуны'},
-                 eta=now+datetime.timedelta(seconds=200)#days=2)
+                 eta=now+datetime.timedelta(days=2)
             )
             
     else:
