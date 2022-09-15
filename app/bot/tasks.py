@@ -58,10 +58,11 @@ def broadcast_message2(
     logger.info(f"Going to send message: '{text}' to {len(user_ids)} users")
 
     for user_id in user_ids:
-        next_state = models.User.get_broadcast_next_states(user_id, message_id)
+        next_state, prev_message_id = models.User.get_broadcast_next_states(user_id, message_id)
         prev_msg_id = utils.send_broadcast_message(
             new_state=next_state,
             user_id=user_id,
+            prev_message_id=prev_message_id
         )
         User.set_message_id(user_id, prev_msg_id)
         time.sleep(max(sleep_between, 0.1))

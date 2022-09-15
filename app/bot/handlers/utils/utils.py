@@ -138,11 +138,17 @@ def get_user_info(user_id, user_code):
     return resp.json()
 
 
-def send_broadcast_message(next_state, user_id):
+def send_broadcast_message(next_state, user_id, prev_message_id):
     next_msg_type = next_state["message_type"]
 
     markup = next_state["markup"]
     message_text = get_message_text(next_state["text"], next_state['user_keywords'])
+
+    if prev_message_id and prev_message_id != '' and prev_message_id != MessageType.POLL:
+        _revoke_message(
+            user_id=user_id,
+            message_id=prev_message_id
+        )
 
     if next_msg_type == MessageType.POLL:
         send_poll(text='Опрос', markup=markup)
@@ -154,9 +160,13 @@ def send_broadcast_message(next_state, user_id):
     else:
         reply_markup = None
 
+    photos = next_state.get("photos", [])
+    photo = photos.pop(0) if len(photos) > 0 else None
+
     prev_msg_id = _send_message(
         user_id=user_id,
         text=message_text,
+        photo=photo,
         reply_markup=reply_markup
     )
     return prev_msg_id
@@ -175,8 +185,14 @@ def send_logs_message(msg_text, user_keywords, prev_state):
         '<b>first_name last_name</b> (user_id)\n' \
         'company\n' \
         'phone'
-    
-    message_text = get_message_text(text, user_keywords)
+    try:
+        message_text = get_message_text(text, user_keywords)
+    except:
+        message_text = f'{msg_text}' + \
+        '\n\n' \
+        f'<b>{user_keywords.get("first_name", "Noname")} {user_keywords.get("last_name", "Noname")}</b> ({user_keywords.get("user_id", "Noname")})\n' \
+
+
     _send_message(
         user_id=TELEGRAM_LOGS_CHAT_ID,
         text=message_text

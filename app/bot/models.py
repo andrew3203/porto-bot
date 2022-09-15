@@ -70,64 +70,52 @@ class User(CreateUpdateTracker):
 
     birth_date = models.DateField(
         'День Рождения',
-        blank=True,
-        null=True,
-        default=None
+        default=None, **nb
     )
     all_time_cashback = models.IntegerField(
         'Кешбек за все время',
-        blank=True,
-        default=0
+        default=0, **nb
     )
     free_gold_tickets = models.IntegerField(
         'Золотые билеты',
-        blank=True,
-        default=0
+        default=0, **nb
     )
     free_cashback = models.IntegerField(
         'Бесплатный Кешбек',
-        blank=True,
-        default=0
+        default=0, **nb
     )
     all_time_gold_tickets = models.IntegerField(
         'Золотые билеты за все время',
-        blank=True,
-        default=0
+        default=0, **nb
     )
     rating_place = models.IntegerField(
         'Рейтинг',
-        blank=True,
-        default=0
+        default=0, **nb
     )
     owner = models.CharField(
         'Username ответсвенного',
         max_length=256,
-        blank=True,
-        default=''
+        default='', **nb
     )
     position = models.CharField(
         'Позиция',
         max_length=256,
-        blank=True,
-        default=''
+        default='', **nb
     )
     company = models.CharField(
         'Компания',
         max_length=256,
-        blank=True,
-        default=''
+        default='', **nb
     )
     orders = models.IntegerField(
         'Кол-во заказов',
         help_text='Кол-во заказов с момента регистрации в программе лояльнсти',
-        blank=True,
-        default=0
+        default=0, **nb
     )
     turnover = models.IntegerField(
         'Оборот',
         help_text='c 6-го апреля по 31 дек',
-        blank=True,
-        default=0
+        default=0, **nb
     )
     objects = GetOrNoneManager()  # user = User.objects.get_or_none(user_id=<some_id>)
     admins = AdminUserManager()  # User.admins.all()
@@ -285,7 +273,9 @@ class User(CreateUpdateTracker):
         next_state['user_keywords'] = json.loads(r.get(f'{user_id}_keywords'))
         r.setex(user_id, timedelta(hours=5), value=next_state_id)
 
-        return next_state
+        prev_message_id = r.get(f'{user_id}_prev_message_id')
+
+        return next_state, prev_message_id
 
     @staticmethod
     def set_state(user_id, message_id):

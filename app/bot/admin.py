@@ -150,10 +150,11 @@ class UserAdmin(admin.ModelAdmin):
             if DEBUG:  
                 self.message_user(request, f"Рассылка {len(queryset)} сообщений начата")
                 for user_id in user_ids:
-                    next_state = models.User.get_broadcast_next_states(user_id, broadcast.message.id)
+                    next_state, prev_message_id = models.User.get_broadcast_next_states(user_id, broadcast.message.id)
                     prev_msg_id = utils.send_broadcast_message(
                         next_state=next_state,
                         user_id=user_id,
+                        prev_message_id=prev_message_id
                     ) 
                     User.set_message_id(user_id, prev_msg_id)
 
@@ -269,7 +270,7 @@ class BroadcastAdmin(admin.ModelAdmin):
         self.message_user(request, f"Рассылка {len(queryset)} сообщений начата!")
         for broadast in queryset:
             user_ids = broadast.users.all().values_list('user_id', flat=True)
-            broadcast_message2.delay(text=broadast.text, user_ids=list(user_ids), message_id=broadast.message.id)
+            broadcast_message2.delay(text=broadast.message.text, user_ids=list(user_ids), message_id=broadast.message.id)
 
     actions = [send_mailing]
     send_mailing.short_description = 'Начать рассылку'
