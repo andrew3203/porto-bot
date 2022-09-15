@@ -193,8 +193,11 @@ class User(CreateUpdateTracker):
         self.first_name = new_data.get('first_name', self.first_name)
         self.last_name = new_data.get('last_name', self.last_name)
         self.deep_link = new_data.get('code_person', self.deep_link)
-        self.company = new_data.get('company_name', self.company)
-        self.phone = new_data.get('phone', self.phone)
+        
+        if new_data.get('company_name', self.company):
+            self.company = new_data.get('company_name', self.company)
+        if new_data.get('phone', self.phone):
+            self.phone = new_data.get('phone', self.phone)
         created_at = new_data.get('telegram_register_date', None)
         if created_at:
             self.created_at = datetime.strptime(created_at, "%Y-%m-%d") 
