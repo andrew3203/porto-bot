@@ -60,7 +60,7 @@ def broadcast_message2(
     for user_id, persone_code  in users:
         next_state, prev_message_id = models.User.get_broadcast_next_states(user_id, message_id, persone_code)
         prev_msg_id = utils.send_broadcast_message(
-            new_state=next_state,
+            next_state=next_state,
             user_id=user_id,
             prev_message_id=prev_message_id
         )
