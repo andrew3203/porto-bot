@@ -269,7 +269,7 @@ class User(CreateUpdateTracker):
     def get_broadcast_next_states(user_id, message_id, persone_code):
         r = redis.from_url(REDIS_URL, decode_responses=True)
 
-        if persone_code and r.exists(user_id):
+        if persone_code:
             next_state = json.loads(r.get(message_id))
             next_state_id = message_id
 
