@@ -65,6 +65,7 @@ def broadcast_message2(
             prev_message_id=prev_message_id
         )
         User.set_message_id(user_id, prev_msg_id)
+        logger.info(f"Sent message to {user_id}!")
         time.sleep(max(sleep_between, 0.1))
 
     logger.info("Broadcast finished!")

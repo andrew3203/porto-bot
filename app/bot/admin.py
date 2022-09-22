@@ -141,7 +141,6 @@ class UserAdmin(admin.ModelAdmin):
 
         if 'apply' in request.POST:
             f = forms.BroadcastForm(request.POST, request.FILES)
-            print(f)
             if f.is_valid(): 
                 broadcast = f.save() 
             else:
