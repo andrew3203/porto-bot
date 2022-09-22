@@ -266,24 +266,22 @@ class User(CreateUpdateTracker):
         return prev_state, next_state, prev_message_id
     
     @staticmethod
-    def get_broadcast_next_states(user_id, message_id):
+    def get_broadcast_next_states(user_id, message_id, persone_code):
         r = redis.from_url(REDIS_URL, decode_responses=True)
 
-        if r.exists(user_id) and r.exists(f'{user_id}_registration'):
+        if persone_code and r.exists(user_id):
             next_state = json.loads(r.get(message_id))
             next_state_id = message_id
 
-        elif r.exists(user_id):
+        else:
             next_state_id = r.get('registration_error')
 
-        else:
-            next_state_id = r.get('start')
 
         raw = r.get(next_state_id)
         Message.objects.filter(id=next_state_id).update(clicks=F('clicks') + 1)
         next_state = json.loads(raw)
         next_state['user_keywords'] = json.loads(r.get(f'{user_id}_keywords'))
-        r.setex(user_id, timedelta(hours=5), value=next_state_id)
+        r.setex(user_id, timedelta(hours=30), value=next_state_id)
 
         prev_message_id = r.get(f'{user_id}_prev_message_id')
 

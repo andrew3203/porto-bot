@@ -149,8 +149,10 @@ class UserAdmin(admin.ModelAdmin):
             
             if DEBUG:  
                 self.message_user(request, f"Рассылка {len(queryset)} сообщений начата")
-                for user_id in user_ids:
-                    next_state, prev_message_id = models.User.get_broadcast_next_states(user_id, broadcast.message.id)
+                for user in queryset:
+                    user_id = user.user_id
+                    persone_code = user.deep_link
+                    next_state, prev_message_id = models.User.get_broadcast_next_states(user_id, broadcast.message.id, persone_code)
                     prev_msg_id = utils.send_broadcast_message(
                         next_state=next_state,
                         user_id=user_id,
@@ -161,7 +163,10 @@ class UserAdmin(admin.ModelAdmin):
             else:
 
                 self.message_user(request, f"Рассылка {len(queryset)} сообщений начата")
-                broadcast_message2.delay(text=broadcast.text, user_ids=list(user_ids), message_id=broadcast.message.id) # TODO
+                user_ids = list(queryset.values_list('user_id', flat=True))
+                persone_codes = list(queryset.values_list('deep_link', flat=True))
+                users = list(zip(user_ids,persone_codes))
+                broadcast_message2.delay(text=broadcast.text, users=users, message_id=broadcast.message.id) # TODO
                 
             url = reverse(f'admin:{broadcast._meta.app_label}_{broadcast._meta.model_name}_changelist')
             return HttpResponseRedirect(url)

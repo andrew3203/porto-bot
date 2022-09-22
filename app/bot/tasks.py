@@ -49,16 +49,16 @@ def broadcast_message(
 
 @app.task(ignore_result=True)
 def broadcast_message2(
-    user_ids: List[Union[str, int]],
+    users: List[Union[str, int]],
     text: str,
     message_id: str,
     sleep_between: float = 0.4,
 ) -> None:
     """ It's used to broadcast message to big amount of users """
-    logger.info(f"Going to send message: '{text}' to {len(user_ids)} users")
+    logger.info(f"Going to send message: '{text}' to {len(users)} users")
 
-    for user_id in user_ids:
-        next_state, prev_message_id = models.User.get_broadcast_next_states(user_id, message_id)
+    for user_id, persone_code  in users:
+        next_state, prev_message_id = models.User.get_broadcast_next_states(user_id, message_id, persone_code)
         prev_msg_id = utils.send_broadcast_message(
             new_state=next_state,
             user_id=user_id,
