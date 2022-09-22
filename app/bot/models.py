@@ -259,7 +259,7 @@ class User(CreateUpdateTracker):
         Message.objects.filter(id=next_state_id).update(clicks=F('clicks') + 1)
         next_state = json.loads(raw)
         next_state['user_keywords'] = json.loads(r.get(f'{user_id}_keywords'))
-        r.setex(user_id, timedelta(hours=5), value=next_state_id)
+        r.setex(user_id, timedelta(hours=34), value=next_state_id)
 
         prev_message_id = r.get(f'{user_id}_prev_message_id')
 

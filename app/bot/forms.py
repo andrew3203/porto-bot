@@ -55,6 +55,7 @@ class BroadcastForm(forms.Form):
         )
         message.save()
         message.files.set(self.cleaned_data['files'])
+        message.save()
         broadcast = Broadcast(
             name=name, message=message,
             # group=self.cleaned_data['group']

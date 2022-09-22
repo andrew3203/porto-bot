@@ -39,7 +39,7 @@ def command_start(update: Update, context: CallbackContext) -> None:
                 eta=now+datetime.timedelta(seconds=10)
             )
             utils.send_logs_message(
-                msg_text='start', 
+                msg_text='Новый пользователь!!', 
                 user_keywords=u.get_keywords(), 
                 prev_state=None
             )
