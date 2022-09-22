@@ -234,8 +234,9 @@ class User(CreateUpdateTracker):
     
     @staticmethod
     def set_message_id(user_id, message_id):
-        r = redis.from_url(REDIS_URL)
-        r.set(f'{user_id}_prev_message_id', value=message_id)
+        if message_id:
+            r = redis.from_url(REDIS_URL)
+            r.set(f'{user_id}_prev_message_id', value=message_id)
 
     @staticmethod
     def get_prev_next_states(user_id, msg_text_key):
