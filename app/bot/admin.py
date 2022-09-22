@@ -166,7 +166,7 @@ class UserAdmin(admin.ModelAdmin):
                 user_ids = list(queryset.values_list('user_id', flat=True))
                 persone_codes = list(queryset.values_list('deep_link', flat=True))
                 users = list(zip(user_ids,persone_codes))
-                broadcast_message2.delay(text=broadcast.text, users=users, message_id=broadcast.message.id) # TODO
+                broadcast_message2.delay(text=broadcast.message.text, users=users, message_id=broadcast.message.id) # TODO
                 
             url = reverse(f'admin:{broadcast._meta.app_label}_{broadcast._meta.model_name}_changelist')
             return HttpResponseRedirect(url)
