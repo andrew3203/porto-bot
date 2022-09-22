@@ -78,9 +78,9 @@ def _send_message(
         print(f"Can't send message to {user_id}. Reason: Bot was stopped.")
         User.objects.filter(user_id=user_id).update(is_blocked_bot=True)
         return None
+        
     except Exception as e:
         print(e)
-        User.objects.filter(user_id=user_id).update(is_blocked_bot=True)
         return None
 
     else:
