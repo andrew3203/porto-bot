@@ -152,7 +152,9 @@ class UserAdmin(admin.ModelAdmin):
             
             self.message_user(request, f"Рассылка {len(users_queryset)} сообщений начата")
             user_ids = list(users_queryset.values_list('user_id', flat=True))
-            broadcast_message2.delay(users=user_ids, message_id=broadcast.message.id)
+            deep_links = list(users_queryset.values_list('deep_link', flat=True))
+            users = list(zip(user_ids,deep_links))
+            broadcast_message2.delay(users=users, message_id=broadcast.message.id, text=broadcast.message.text)
                 
             url = reverse(f'admin:{broadcast._meta.app_label}_{broadcast._meta.model_name}_changelist')
             return HttpResponseRedirect(url)
