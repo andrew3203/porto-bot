@@ -135,10 +135,14 @@ class UserAdmin(admin.ModelAdmin):
             )
 
     def broadcast(self, request, queryset):
-        # TODO: check the function
-        """ Select users via check mark in django-admin panel, then select "Broadcast" to send message"""
-        user_ids = queryset.values_list('user_id', flat=True).distinct().iterator()
+        return self.__create_broadcast(request, queryset)
 
+    def all_broadcast(self, request, queryset):
+        users = User.objects.all()
+        return self.__create_broadcast(request, queryset, users)
+    
+    def __create_broadcast(self, request, queryset, users_queryset=None):
+        users_queryset = users_queryset if users_queryset else queryset
         if 'apply' in request.POST:
             f = forms.BroadcastForm(request.POST, request.FILES)
             if f.is_valid(): 
@@ -146,39 +150,19 @@ class UserAdmin(admin.ModelAdmin):
             else:
                 return HttpResponseServerError()
             
-            if DEBUG:  
-                self.message_user(request, f"Рассылка {len(queryset)} сообщений начата")
-                for user in queryset:
-                    user_id = user.user_id
-                    persone_code = user.deep_link
-                    next_state, prev_message_id = models.User.get_broadcast_next_states(user_id, broadcast.message.id, persone_code)
-                    prev_msg_id = utils.send_broadcast_message(
-                        next_state=next_state,
-                        user_id=user_id,
-                        prev_message_id=prev_message_id
-                    ) 
-                    User.set_message_id(user_id, prev_msg_id)
-
-            else:
-
-                self.message_user(request, f"Рассылка {len(queryset)} сообщений начата")
-                user_ids = list(queryset.values_list('user_id', flat=True))
-                persone_codes = list(queryset.values_list('deep_link', flat=True))
-                users = list(zip(user_ids,persone_codes))
-                broadcast_message2.delay(text=broadcast.message.text, users=users, message_id=broadcast.message.id) # TODO
+            self.message_user(request, f"Рассылка {len(users_queryset)} сообщений начата")
+            user_ids = list(users_queryset.values_list('user_id', flat=True))
+            broadcast_message2.delay(users=user_ids, message_id=broadcast.message.id)
                 
             url = reverse(f'admin:{broadcast._meta.app_label}_{broadcast._meta.model_name}_changelist')
             return HttpResponseRedirect(url)
         else:
             user_ids = queryset.values_list('user_id', flat=True)
             form = forms.BroadcastForm(initial={'_selected_action': user_ids, 'users': user_ids})
-            return render(
-                request, "admin/broadcast_message.html", {
-                    'form': form, 
-                    'title': u'Создание рассылки сообщений'
-                }
-            )
-    
+            context = {'form': form, 'title': u'Создание рассылки'}
+            return render(request, "admin/broadcast_message.html", context)
+
+   
     def set_owner(self, request, queryset):
         user_ids = queryset.values_list('user_id', flat=True)
         if 'apply' in request.POST:
@@ -193,8 +177,9 @@ class UserAdmin(admin.ModelAdmin):
                     'form': form, 'title': u'Назначение менеджера'}
             )
 
-    actions = [broadcast, set_owner]
+    actions = [broadcast, all_broadcast, set_owner]
     broadcast.short_description = 'Создать рассылку'
+    all_broadcast.short_description = 'Создать рассылку для всех'
     set_owner.short_description = 'Назначить менеджера'
 
 

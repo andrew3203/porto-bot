@@ -28,7 +28,7 @@ def broadcast_message(
     parse_mode=telegram.ParseMode.HTML,
 ) -> None:
     """ It's used to broadcast message to big amount of users """
-    logger.info(f"Going to send message: '{text}' to {len(user_ids)} users")
+    logger.info(f"Going to send message to {len(user_ids)} users")
 
     entities_ = _from_celery_entities_to_entities(entities)
     reply_markup_ = _from_celery_markup_to_markup(reply_markup)
