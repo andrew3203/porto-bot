@@ -11,7 +11,7 @@
     <br>
     {{ form.as_p }}
    
-    <input type="hidden" name="action" value="broadcast" />
+    <input type="hidden" name="action" value="{{ action }}" />
     <input type="submit" name="apply" value="Запустить рассылку" />
 </form>
 {% endblock %}

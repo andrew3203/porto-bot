@@ -151,7 +151,7 @@ class UserAdmin(admin.ModelAdmin):
         else:
             user_ids = queryset.values_list('user_id', flat=True)
             form = forms.BroadcastForm(initial={'_selected_action': user_ids, 'users': user_ids})
-            context = {'form': form, 'title': u'Создание рассылки'}
+            context = {'form': form, 'title': u'Создание рассылки', 'action': 'all_broadcast'}
             return render(request, "admin/broadcast_message.html", context)
     
     def broadcast(self, request, queryset):
@@ -173,7 +173,7 @@ class UserAdmin(admin.ModelAdmin):
         else:
             user_ids = queryset.values_list('user_id', flat=True)
             form = forms.BroadcastForm(initial={'_selected_action': user_ids, 'users': user_ids})
-            context = {'form': form, 'title': u'Создание рассылки'}
+            context = {'form': form, 'title': u'Создание рассылки', 'action': 'broadcast'}
             return render(request, "admin/broadcast_message.html", context)
 
     def revoke_last_message(self, request, queryset):

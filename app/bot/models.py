@@ -13,6 +13,7 @@ from django.db import models
 from django.db.models import QuerySet, Manager
 from telegram import Update
 from telegram.ext import CallbackContext
+from bot.handlers.utils.utils import send_registration
 
 from portobello.settings import MSG_PRIMARY_NAMES, REDIS_URL
 from bot.handlers.utils.info import extract_user_data_from_update
@@ -317,6 +318,7 @@ class User(CreateUpdateTracker):
             payload = context.args[0]
             if u.deep_link is None:
                 u.deep_link = payload
+                send_registration(user_code=u.deep_link, user_id=u.user_id)
                 u.save()
 
         return u, created
