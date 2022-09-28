@@ -3,9 +3,6 @@ from django.http import HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import render
 from bot.models import User
 
-from portobello.settings import DEBUG
-from bot.handlers.utils import utils
-
 from django.contrib.auth.models import Group as gp
 from django.contrib.auth.models import User as DefaultUser
 

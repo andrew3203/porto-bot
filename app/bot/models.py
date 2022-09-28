@@ -140,47 +140,52 @@ class User(CreateUpdateTracker):
    
 
     def get_keywords(self):
-        q = []
+        zeros = []
         if self.free_cashback == 0:
-            q.append('free_cashback')
-        if self.rating_place == 0:
-            q.append('rating_place')
+            zeros.append('free_cashback')
         if self.all_time_cashback == 0:
-            q.append('all_time_cashback')
+            zeros.append('all_time_cashback')
         if self.all_time_gold_tickets == 0:
-            q.append('all_time_gold_tickets')
+            zeros.append('all_time_gold_tickets')
         if self.free_gold_tickets == 0:
-            q.append('free_gold_tickets')
+            zeros.append('free_gold_tickets')
+        if self.turnover == 0:
+            zeros.append('turnover')
         
-        t = []
-        if self.position == '':
-            t.append('position')
+        blaks = []
+        if self.position == '' or self.position is None:
+            blaks.append('position')
         if self.first_name == '' or self.first_name is None:
-            t.append('first_name')
+            blaks.append('first_name')
         if self.last_name == '' or self.last_name is None:
-            t.append('last_name')
+            blaks.append('last_name')
+        if self.phone == '' or self.phone is None:
+            blaks.append('phone')
+        if self.company == '' or self.company is None:
+            blaks.append('company')
+        if self.username == '' or self.username is None:
+            blaks.append('username')
 
-        birth_date = self.birth_date.strftime("%y.%m.%d") if self.birth_date else '2000.02.02'
-        d =  {
+        keywords =  {
             self.user_id: ['user_id'],
             self.deep_link: ['user_code'],
             self.free_cashback: ['free_cashback'],
             self.all_time_cashback: ['all_time_cashback'],
             self.all_time_gold_tickets: ['all_time_gold_tickets'],
             self.free_gold_tickets: ['free_gold_tickets'],
-            birth_date: ['birth_date'],
-            self.last_name: ['last_name'],
-            self.first_name: ['first_name'],
-            self.username: ['username'],
+            self.turnover if self.turnover > 0 else 'XXX': ['turnover'],
+            
             self.position: ['position'],
-            self.company if len(self.company) > 1 else '--': ['company'],
-            self.phone if self.phone else '-': ['phone'],
-            self.turnover if self.turnover else 'XXX': ['turnover']
+            self.first_name: ['first_name'],
+            self.last_name: ['last_name'],
+            self.phone: ['phone'],
+            self.company: ['company'],
+            self.username: ['username'],
         }
-        if len(q) > 0:
-            d[0] = q
-        if len(t) > 0:
-            d[''] = t
+        if len(blaks) > 0:
+            keywords[' '] = blaks
+        if len(zeros) > 0:
+            keywords[0] = zeros
         
         if 100 > self.rating_place > 1:
             text = rating_place_top
@@ -188,9 +193,9 @@ class User(CreateUpdateTracker):
             text = rating_place_middle.format(rating_place=self.rating_place)
         else:
             text = rating_place_outside
-        d[text] = ['rating_place']
+        keywords[text] = ['rating_place']
 
-        return d
+        return keywords
 
     def update_info(self, new_data):
         self.all_time_cashback = new_data.get('all_time_cashback', self.all_time_cashback)
