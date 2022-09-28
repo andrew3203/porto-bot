@@ -77,7 +77,7 @@ def revoke_prev_message(users: List[Union[str, int]], sleep_between: float = 0.4
         message_id = User.unset_prew_message_id(user_id)
         if message_id and message_id != '':
             utils._revoke_message(user_id=user_id, message_id=message_id)
-        logger.info(f"Message deleted for {user_id}!")
+        logger.info(f"Message deleted for {user_id} {message_id}!")
         time.sleep(max(sleep_between, 0.1))
 
      logger.info("Deleting finished!")
