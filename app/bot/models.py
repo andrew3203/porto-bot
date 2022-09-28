@@ -240,7 +240,7 @@ class User(CreateUpdateTracker):
     
     @staticmethod
     def unset_prew_message_id(user_id):
-        r = redis.from_url(REDIS_URL)
+        r = redis.from_url(REDIS_URL,  decode_responses=True)
         message_id = r.get(f'{user_id}_prev_message_id')
         r.delete(f'{user_id}_prev_message_id')
         return message_id
