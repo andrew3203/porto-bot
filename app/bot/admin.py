@@ -15,7 +15,7 @@ from django.urls import reverse
 from bot import models
 from bot import forms
 
-from bot.tasks import broadcast_message2
+from bot.tasks import broadcast_message2, revoke_prev_message
 from django_celery_beat.models import (
     IntervalSchedule,
     CrontabSchedule,
@@ -134,15 +134,7 @@ class UserAdmin(admin.ModelAdmin):
                     'form': form, 'title': u'Создание новой группы'}
             )
 
-    def broadcast(self, request, queryset):
-        return self.__create_broadcast(request, queryset)
-
     def all_broadcast(self, request, queryset):
-        users = User.objects.all()
-        return self.__create_broadcast(request, queryset, users)
-    
-    def __create_broadcast(self, request, queryset, users_queryset=None):
-        users_queryset = users_queryset if users_queryset else queryset
         if 'apply' in request.POST:
             f = forms.BroadcastForm(request.POST, request.FILES)
             if f.is_valid(): 
@@ -150,6 +142,7 @@ class UserAdmin(admin.ModelAdmin):
             else:
                 return HttpResponseServerError()
             
+            users_queryset = User.objects.all()
             self.message_user(request, f"Рассылка {len(users_queryset)} сообщений начата")
             user_ids = list(users_queryset.values_list('user_id', flat=True))
             deep_links = list(users_queryset.values_list('deep_link', flat=True))
@@ -163,8 +156,40 @@ class UserAdmin(admin.ModelAdmin):
             form = forms.BroadcastForm(initial={'_selected_action': user_ids, 'users': user_ids})
             context = {'form': form, 'title': u'Создание рассылки'}
             return render(request, "admin/broadcast_message.html", context)
+    
+    def broadcast(self, request, queryset):
+        if 'apply' in request.POST:
+            f = forms.BroadcastForm(request.POST, request.FILES)
+            if f.is_valid(): 
+                broadcast = f.save() 
+            else:
+                return HttpResponseServerError()
+            
+            self.message_user(request, f"Рассылка {len(queryset)} сообщений начата")
+            user_ids = list(queryset.values_list('user_id', flat=True))
+            deep_links = list(queryset.values_list('deep_link', flat=True))
+            users = list(zip(user_ids,deep_links))
+            broadcast_message2.delay(users=users, message_id=broadcast.message.id, text=broadcast.message.text)
+                
+            url = reverse(f'admin:{broadcast._meta.app_label}_{broadcast._meta.model_name}_changelist')
+            return HttpResponseRedirect(url)
+        else:
+            user_ids = queryset.values_list('user_id', flat=True)
+            form = forms.BroadcastForm(initial={'_selected_action': user_ids, 'users': user_ids})
+            context = {'form': form, 'title': u'Создание рассылки'}
+            return render(request, "admin/broadcast_message.html", context)
 
-   
+    def revoke_last_message(self, request, queryset):
+        user_ids = list(queryset.values_list('user_id', flat=True))
+        revoke_prev_message.delay(users=user_ids)
+        self.message_user(request, f"Будет удолено {len(user_ids)} последних сообщений")
+    
+    def revoke_last_message_all(self, request, queryset):
+        users = User.objects.all()
+        user_ids = list(users.values_list('user_id', flat=True))
+        revoke_prev_message.delay(users=user_ids)
+        self.message_user(request, f"Будет удолено {len(user_ids)} последних сообщений")
+
     def set_owner(self, request, queryset):
         user_ids = queryset.values_list('user_id', flat=True)
         if 'apply' in request.POST:
@@ -179,10 +204,12 @@ class UserAdmin(admin.ModelAdmin):
                     'form': form, 'title': u'Назначение менеджера'}
             )
 
-    actions = [broadcast, all_broadcast, set_owner]
+    actions = [broadcast, all_broadcast, set_owner, revoke_last_message, revoke_last_message_all]
     broadcast.short_description = 'Создать рассылку'
     all_broadcast.short_description = 'Создать рассылку для всех'
     set_owner.short_description = 'Назначить менеджера'
+    revoke_last_message.short_description = 'Удалить последнее сообщение'
+    revoke_last_message_all.short_description = 'Удалить последнее сообщение для всех'
 
 
 @admin.register(models.Message)

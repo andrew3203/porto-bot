@@ -64,11 +64,23 @@ def broadcast_message2(
             user_id=user_id,
             prev_message_id=prev_message_id
         )
-        User.set_message_id(user_id, prev_msg_id)
+        User.unset_prew_message_id(user_id)
         logger.info(f"Sent message to {user_id}!")
         time.sleep(max(sleep_between, 0.1))
 
     logger.info("Broadcast finished!")
+
+@app.task(ignore_result=True)
+def revoke_prev_message(users: List[Union[str, int]], sleep_between: float = 0.4) -> None:
+     logger.info(f"Going to send del {len(users)} messages")
+     for user_id in users:
+        message_id = User.unset_prew_message_id(user_id)
+        if message_id and message_id != '':
+            utils._revoke_message(user_id=user_id, message_id=message_id)
+        logger.info(f"Message deleted for {user_id}!")
+        time.sleep(max(sleep_between, 0.1))
+
+     logger.info("Deleting finished!")
 
 @app.task(ignore_result=True)
 def update_photo(queue):
