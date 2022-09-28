@@ -140,10 +140,10 @@ class UserAdmin(admin.ModelAdmin):
                 return HttpResponseServerError()
             
             users_queryset = User.objects.all()
-            self.message_user(request, f"Рассылка {len(users_queryset)} сообщений начата")
+            self.message_user(request, f"РАССЫЛКА {len(users_queryset)} сообщений начата")
             user_ids = list(users_queryset.values_list('user_id', flat=True))
             deep_links = list(users_queryset.values_list('deep_link', flat=True))
-            users = list(zip(user_ids,deep_links))
+            users = list(zip(user_ids, deep_links))
             broadcast_message2.delay(users=users, message_id=broadcast.message.id, text=broadcast.message.text)
                 
             url = reverse(f'admin:{broadcast._meta.app_label}_{broadcast._meta.model_name}_changelist')
