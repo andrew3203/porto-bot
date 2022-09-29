@@ -1,17 +1,12 @@
-import re
 import telegram
 from telegram import Update
 from telegram.ext import CallbackContext
-from bot.handlers.chat.handlers import recive_command
 
 from .manage_data import CONFIRM_DECLINE_BROADCAST, CONFIRM_BROADCAST
 from .keyboards import keyboard_confirm_decline_broadcasting
 from .static_text import *
 from bot.models import User
 from bot.tasks import broadcast_message
-from bot.handlers.broadcast_message.utils import _send_message
-
-from portobello.settings import TELEGRAM_SUPPORT_CHAT
 
 
 def broadcast_command_with_message(update: Update, context: CallbackContext):
@@ -85,27 +80,4 @@ def broadcast_decision_handler(update: Update, context: CallbackContext) -> None
         chat_id=update.callback_query.message.chat_id,
         message_id=update.callback_query.message.message_id,
         entities=None if broadcast_decision == CONFIRM_BROADCAST else entities,
-    )
-
-
-def support_command_with_message(update: Update, context: CallbackContext):
-    if update.message.text == support_command:
-        recive_command(update, context)
-        #update.effective_chat.send_message(
-        #    text=update.message.chat_id
-        #)
-        return
-
-    u = User.get_user(update, context)
-    li = f'<a href="http://bot.portobello.ru/admin/bot/user/{u.user_id}/change/">{u.first_name} {u.last_name} ({u.user_id})</a>\n{u.company}\n{u.phone}\n{u.owner}'
-    text = f"{update.message.text.replace(f'{support_command} ', '')}\n\n{li}"
-    context.bot.send_message(
-        chat_id=int(TELEGRAM_SUPPORT_CHAT),
-        text=text,
-        parse_mode=telegram.ParseMode.HTML,
-        disable_web_page_preview=True
-    )
-
-    update.effective_chat.send_message(
-        text='Ваше сообщение отправлено',
     )

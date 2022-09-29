@@ -31,6 +31,7 @@ def setup_dispatcher(dp):
     # onboarding
     dp.add_handler(CommandHandler("start", chat.command_start))
     dp.add_handler(CommandHandler("balance", chat.command_balance))
+    dp.add_handler(CommandHandler("support", chat.command_support))
     
 
     # admin commands
@@ -44,12 +45,7 @@ def setup_dispatcher(dp):
         broadcast_handlers.broadcast_command_with_message)
     )
     dp.add_handler(CallbackQueryHandler(broadcast_handlers.broadcast_decision_handler, pattern=f"^{CONFIRM_DECLINE_BROADCAST}"))
-
-    # forward user question to support chat
-    dp.add_handler(MessageHandler(
-        Filters.regex(rf'^{support_command}(/s)?.*') | Filters.caption_entity(f'{support_command}'), 
-        broadcast_handlers.support_command_with_message)
-    )
+    
     
     # products  ,  stock  ,  loyalty_program  ,  support
     dp.add_handler(MessageHandler(Filters.command, chat.recive_command))

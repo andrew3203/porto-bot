@@ -1,6 +1,4 @@
 import datetime
-from email import message
-import logging
 import re
 from django.utils import timezone
 
@@ -12,6 +10,8 @@ from bot.models import User, Poll
 from bot.handlers.utils import utils
 from bot.handlers.utils.info import extract_user_data_from_update
 from bot.tasks import send_delay_message
+from portobello.settings import TELEGRAM_SUPPORT_CHAT
+
 
 
 def command_start(update: Update, context: CallbackContext) -> None:
@@ -64,6 +64,10 @@ def command_balance(update: Update, context: CallbackContext) -> None:
 
     recive_command(update, context)
 
+def command_support(update: Update, context: CallbackContext) -> None:
+    context.user_data['ask_support'] = True
+    recive_command(update, context)
+
 
 def recive_command(update: Update, context: CallbackContext) -> None:
     user_id = extract_user_data_from_update(update)["user_id"]
@@ -85,10 +89,31 @@ def recive_command(update: Update, context: CallbackContext) -> None:
     )
 
 
-def recive_message(update: Update, context: CallbackContext) -> None:
-    user_id = extract_user_data_from_update(update)["user_id"]
-    msg_text = update.message.text
+def _forward_to_support(update: Update, context: CallbackContext) -> None:
+    u = User.get_user(update, context)
+    li = f'<a href="http://bot.portobello.ru/admin/bot/user/{u.user_id}/change/">' \
+        f'{u.first_name} {u.last_name} ({u.user_id})</a>\n' \
+        f'{u.company}\n{u.phone}\n{u.owner}'
 
+    text = f"{update.message.text}\n\n{li}"
+    context.bot.send_message(
+        chat_id=int(TELEGRAM_SUPPORT_CHAT),
+        text=text,
+        parse_mode=ParseMode.HTML,
+        disable_web_page_preview=True
+    )
+
+
+def recive_message(update: Update, context: CallbackContext) -> None:
+
+    if context.user_data.pop('ask_support', False):
+        _forward_to_support(update, context)
+        msg_text = 'Отправил вопрос в поддержку'
+    else:
+        msg_text = update.message.text
+
+
+    user_id = extract_user_data_from_update(update)["user_id"]
     prev_state, next_state, prev_message_id = User.get_prev_next_states(user_id, msg_text)
 
     prev_msg_id = utils.send_message(
@@ -176,24 +201,4 @@ def forward_from_support(update: Update, context: CallbackContext) -> None:
         text='Cообщение отправлено',
     )
 
-
-
-def forward_to_support(update: Update, context: CallbackContext) -> None:
-    user_id = extract_user_data_from_update(update)["user_id"]
-    msg_text = update.message.text.lower()
-    prev_state, next_state, prev_message_id = User.get_prev_next_states(user_id, msg_text)
-
-    prev_msg_id = utils.send_message(
-        prev_state=prev_state,
-        next_state=next_state,
-        context=context,
-        user_id=user_id,
-        prev_message_id=prev_message_id
-    )
-    User.set_message_id(user_id, prev_msg_id)
-    utils.send_logs_message(
-        msg_text=msg_text, 
-        user_keywords=next_state['user_keywords'], 
-        prev_state=prev_state
-    )
 
