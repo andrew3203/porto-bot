@@ -87,7 +87,6 @@ def update_photo(queue):
     r = redis.from_url(REDIS_URL)
     cash = models.Message.make_cashes()
     r.mset(cash)
-    print('set_messages_states')
 
 
 @app.task(ignore_result=True)

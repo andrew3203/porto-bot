@@ -89,11 +89,10 @@ def send_message(prev_state, next_state, context, user_id, prev_message_id):
     
 
     if prev_message_id and prev_message_id != '' and prev_message_id != MessageType.POLL:
-        #_revoke_message(
-        #    user_id=user_id,
-        #    message_id=prev_message_id
-        #)
-        pass
+        _revoke_message(
+            user_id=user_id,
+            message_id=prev_message_id
+        )
     
     if next_msg_type == MessageType.POLL:
         send_poll(
