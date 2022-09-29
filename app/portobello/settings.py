@@ -168,7 +168,6 @@ TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 if TELEGRAM_TOKEN is None:
     logging.error(
         "Please provide TELEGRAM_TOKEN in .env file.\n"
-        "Example of .env file: https://github.com/ohld/django-telegram-bot/blob/main/.env_example"
     )
     sys.exit(1)
 
@@ -186,5 +185,6 @@ MSG_PRIMARY_NAMES = [
     ('registration_error', 'Ошибка регистрации'),
     ('колесофортуны', 'Колесо Фортуны'),
     ('клублидеров', 'Клуб лидеров'),
-    ('рейтинг', 'Рейтинг')
+    ('рейтинг', 'Рейтинг'),
+    ('отправилвопросвподдержку', 'Отправил вопрос в поддержку')
 ]
