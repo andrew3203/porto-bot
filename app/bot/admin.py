@@ -284,8 +284,10 @@ class BroadcastAdmin(admin.ModelAdmin):
     def send_mailing(self, request, queryset):
         self.message_user(request, f"Рассылка {len(queryset)} сообщений начата!")
         for broadast in queryset:
-            user_ids = broadast.users.all().values_list('user_id', flat=True)
-            broadcast_message2.delay(text=broadast.message.text, user_ids=list(user_ids), message_id=broadast.message.id)
+            user_ids = list(broadast.users.all().values_list('user_id', flat=True))
+            deep_links = list(broadast.users.all().values_list('deep_link', flat=True))
+            users = list(zip(user_ids, deep_links))
+            broadcast_message2.delay(text=broadast.message.text, users=users, message_id=broadast.message.id)
 
     actions = [send_mailing]
     send_mailing.short_description = 'Начать рассылку'

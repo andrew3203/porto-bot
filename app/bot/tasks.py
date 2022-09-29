@@ -55,7 +55,7 @@ def broadcast_message2(
     sleep_between: float = 0.4,
 ) -> None:
     """ It's used to broadcast message to big amount of users """
-    logger.info(f"Going to send message: '{text}' to {len(users)} users")
+    logger.info(f"Going to send message to {len(users)} users")
 
     for user_id, persone_code  in users:
         next_state, prev_message_id = models.User.get_broadcast_next_states(user_id, message_id, persone_code)
@@ -65,7 +65,7 @@ def broadcast_message2(
             prev_message_id=prev_message_id
         )
         User.unset_prew_message_id(user_id)
-        logger.info(f"Sent message to {user_id}!")
+        logger.info(f"Sent message ({prev_msg_id}) to {user_id}!")
         time.sleep(max(sleep_between, 0.1))
 
     logger.info("Broadcast finished!")
