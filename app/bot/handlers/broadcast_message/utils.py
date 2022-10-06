@@ -113,6 +113,20 @@ def _revoke_message(
     except Exception as e:
         print(e)
 
+def _remove_message_markup(
+    message_id: str,
+    user_id: Union[str, int],
+    tg_token: str = TELEGRAM_TOKEN
+) -> bool:
+    bot = telegram.Bot(tg_token)
+    try:
+        bot.edit_message_reply_markup(
+            chat_id=user_id,
+            message_id=message_id,
+            reply_markup=None
+        )
+    except Exception as e:
+        print(e)
 
 
     

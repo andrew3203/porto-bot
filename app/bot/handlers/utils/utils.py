@@ -3,7 +3,10 @@ from portobello.settings import TELEGRAM_LOGS_CHAT_ID
 
 from flashtext import KeywordProcessor
 from django.utils import timezone
-from bot.handlers.broadcast_message.utils import _send_message, _send_media_group, _revoke_message
+from bot.handlers.broadcast_message.utils import (
+    _send_message, _send_media_group, 
+    _revoke_message, _remove_message_markup
+)
 from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -88,8 +91,8 @@ def send_message(prev_state, next_state, context, user_id, prev_message_id):
         photo = None
     
 
-    if prev_message_id and prev_message_id != '' and prev_message_id != MessageType.POLL:
-        _revoke_message(
+    if prev_message_id and prev_msg_type == MessageType.FLY_BTN:
+        _remove_message_markup(
             user_id=user_id,
             message_id=prev_message_id
         )
@@ -144,7 +147,7 @@ def send_broadcast_message(next_state, user_id, prev_message_id):
     markup = next_state["markup"]
     message_text = get_message_text(next_state["text"], next_state['user_keywords'])
 
-    if prev_message_id and prev_message_id != '' and prev_message_id != MessageType.POLL:
+    if prev_message_id:
         _revoke_message(
             user_id=user_id,
             message_id=prev_message_id
