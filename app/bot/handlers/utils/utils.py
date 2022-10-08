@@ -148,7 +148,7 @@ def send_broadcast_message(next_state, user_id, prev_message_id):
     message_text = get_message_text(next_state["text"], next_state['user_keywords'])
 
     if prev_message_id:
-        _revoke_message(
+        _remove_message_markup(
             user_id=user_id,
             message_id=prev_message_id
         )
