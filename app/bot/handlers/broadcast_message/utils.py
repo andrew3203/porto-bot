@@ -56,13 +56,43 @@ def _send_message(
     bot = telegram.Bot(tg_token)
     try:
         if photo:
-            m = bot.send_photo(
-                chat_id=user_id,
-                caption=text,
-                photo=open(photo, 'rb'),
-                parse_mode=parse_mode, 
-                reply_markup=reply_markup,
-            )
+            val = photo.rsplit('.', 1)[-1].lower()
+            if val == 'gif':
+                bot.send_animation(
+                    chat_id=user_id,
+                    animation=open(photo, 'rb'),
+                )
+                m = bot.send_message(
+                    chat_id=user_id,
+                    text=text,
+                    parse_mode=parse_mode, 
+                    reply_markup=reply_markup,
+                    reply_to_message_id=reply_to_message_id,
+                    disable_web_page_preview=disable_web_page_preview,
+                    entities=entities,
+                )
+            elif val == 'mp4':
+                bot.send_video(
+                    chat_id=user_id,
+                    video=open(photo, 'rb'),
+                )
+                m = bot.send_message(
+                    chat_id=user_id,
+                    text=text,
+                    parse_mode=parse_mode, 
+                    reply_markup=reply_markup,
+                    reply_to_message_id=reply_to_message_id,
+                    disable_web_page_preview=disable_web_page_preview,
+                    entities=entities,
+                )
+            else:
+                m = bot.send_photo(
+                    chat_id=user_id,
+                    caption=text,
+                    photo=open(photo, 'rb'),
+                    parse_mode=parse_mode, 
+                    reply_markup=reply_markup,
+                )
         else:
             m = bot.send_message(
                 chat_id=user_id,

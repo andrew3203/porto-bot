@@ -1,7 +1,7 @@
 import datetime
 import re
 from django.utils import timezone
-
+import telegram
 from django.utils import timezone
 from telegram import ParseMode, Update
 from telegram.ext import CallbackContext
@@ -186,19 +186,30 @@ def receive_poll_answer(update: Update, context) -> None:
 
 def forward_from_support(update: Update, context: CallbackContext) -> None:
     replay_msg = update.message.reply_to_message
-    text = replay_msg.text
-
-    regex = "\(\d+\)"
-    match = re.findall(regex, text)
-    chat_id = int(re.sub('\(|\)', '', match[0]))
-
-    context.bot.send_message(
-        chat_id=int(chat_id),
-        text=f'Ответ от Павла:\n\n{update.message.text}',
-        parse_mode=ParseMode.HTML,
-    )
-    update.effective_chat.send_message(
-        text='Cообщение отправлено',
-    )
+    if replay_msg:
+        text = replay_msg.text
+        match = re.findall("\(\d{6,}\)", text)
+    else:
+        text = update.message.text
+        match = re.findall("\d{6,}", text)
+    
+    try:
+        chat_id = int(re.sub('\(|\)', '', match[0]))
+        context.bot.send_message(
+            chat_id=chat_id,
+            text=f'<b>Сообщение от Павла:</b>\n\n{update.message.text}',
+            parse_mode=ParseMode.HTML,
+        )
+        update.effective_chat.send_message(
+            text=f'Сообщение для {chat_id} отправлено!'
+        )
+    except telegram.error.Unauthorized:
+        update.effective_chat.send_message(
+            text='ОШИБКА: Пользователь заблокировал бота.\nСообщение не отправлено!'
+        )
+    except Exception as e:
+        update.effective_chat.send_message(
+            text='ОШИБКА: Пользователь не найден.\nСообщение не отправлено!'
+        )
 
 
