@@ -169,7 +169,8 @@ class User(CreateUpdateTracker):
         if self.username == '' or self.username is None:
             blaks.append('username')
         
-        word = '-1' if not self.sochi_turnover_left else f'{self.turnover:,}'.replace(',', ' ') 
+        left = 3000000 - self.turnover
+        word = '-1' if not self.sochi_turnover_left else f'{left:,}'.replace(',', ' ') 
 
         keywords =  {
             self.user_id: ['user_id'],
