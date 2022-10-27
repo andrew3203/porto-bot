@@ -1,8 +1,7 @@
 """
     Celery tasks. Some of them will be launched periodically from admin panel via django-celery-beat
 """
-from app.bot.models import Message
-from django_celery_beat.models import IntervalSchedule, CrontabSchedule, PeriodicTask
+from django_celery_beat.models import IntervalSchedule, PeriodicTask
 from portobello.settings import REDIS_URL, SOCHI_TURNOVER_LINK
 import requests
 import redis
