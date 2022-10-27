@@ -111,6 +111,7 @@ def sochi_turnover_update():
     resp = requests.get(SOCHI_TURNOVER_LINK)
     data = resp.json()
     persons = data['winners'] + data['other']
+    logger.info(f'{len(persons)} - - - - - - - - - - - - ')
     for person in persons:
         User.objects.filter(deep_link=person['code_person'] ).update(turnover=person['sum'])
     logger.info(f" - - - FINISH updating Sochi Turnover - - - ")
@@ -122,7 +123,7 @@ def sochi_turnover_send():
     sochi_turnover_update()
     logger.info(f" - - - START sending Sochi Turnover - - - ")
     user_list = User.objects.filter(turnover__lte=3000000)
-    msg = Message.objects.get(name='sochi_turnover_send')
+    msg = models.Message.objects.get(name='sochi_turnover_send')
     broadcast_message2.delay(users=user_list, message_id=msg.pk, text=None)
     logger.info(f" - - - FINISH sending Sochi Turnover - - - ")
 
@@ -133,8 +134,8 @@ every_7_days, _ = IntervalSchedule.objects.get_or_create(
 )
 
 PeriodicTask.objects.update_or_create(
-    task="bot.tasks.send_sochi_turnover",
-    name="send_sochi_turnover",
+    task="bot.tasks.sochi_turnover_send",
+    name="sochi_turnover_send",
     defaults=dict(
         interval=every_7_days,
         expire_seconds=100, 
