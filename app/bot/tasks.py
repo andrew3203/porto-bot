@@ -123,8 +123,11 @@ def sochi_turnover_send():
     sochi_turnover_update()
     logger.info(f" - - - START sending Sochi Turnover - - - ")
     user_list = User.objects.filter(turnover__lte=3000000)
+    user_ids = list(user_list.values_list('user_id', flat=True))
+    deep_links = list(user_list.values_list('deep_link', flat=True))
+    users = list(zip(user_ids, deep_links))
     msg = models.Message.objects.get(name='sochi_turnover_send')
-    broadcast_message2.delay(users=user_list, message_id=msg.pk, text=None)
+    broadcast_message2.delay(users=users, message_id=msg.pk, text=None)
     logger.info(f" - - - FINISH sending Sochi Turnover - - - ")
 
 
