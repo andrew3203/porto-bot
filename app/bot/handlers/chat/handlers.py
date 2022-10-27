@@ -5,7 +5,6 @@ import telegram
 from django.utils import timezone
 from telegram import ParseMode, Update
 from telegram.ext import CallbackContext
-
 from bot.models import User, Poll
 from bot.handlers.utils import utils
 from bot.handlers.utils.info import extract_user_data_from_update
@@ -191,6 +190,7 @@ def forward_from_support(update: Update, context: CallbackContext) -> None:
         match = re.findall("\(\d{6,}\)", text)
     else:
         text = update.message.text
+        text = re.sub("\d{6,}", text)
         match = re.findall("\d{6,}", text)
     
     try:
@@ -212,4 +212,28 @@ def forward_from_support(update: Update, context: CallbackContext) -> None:
             text='ОШИБКА: Пользователь не найден.\nСообщение не отправлено!'
         )
 
+
+def sochi_turnover(update: Update, context: CallbackContext) -> None:
+    u = User.get_user(update, context)
+    msg_text = update.callback_query.data
+
+    update.callback_query.answer()
+    prev_state, next_state, prev_message_id = User.get_prev_next_states(u.user_id, msg_text)
+
+    text = next_state['text'].split('if_turnover_more_then_3b')
+    next_state['text'] = text[0] if u.sochi_turnover_left() else text[-1]
+
+    prev_msg_id = utils.send_message(
+        prev_state=prev_state,
+        next_state=next_state,
+        context=context,
+        user_id=u.user_id,
+        prev_message_id=prev_message_id
+    )
+    User.set_message_id(u.user_id, prev_msg_id)
+    utils.send_logs_message(
+        msg_text=msg_text, 
+        user_keywords=next_state['user_keywords'], 
+        prev_state=prev_state
+    )
 

@@ -13,19 +13,8 @@ from bot import models
 from bot import forms
 
 from bot.tasks import broadcast_message2, revoke_prev_message
-from django_celery_beat.models import (
-    IntervalSchedule,
-    CrontabSchedule,
-    SolarSchedule,
-    ClockedSchedule,
-    PeriodicTask,
-)
 
-admin.site.unregister(SolarSchedule)
-admin.site.unregister(ClockedSchedule)
-admin.site.unregister(PeriodicTask)
-admin.site.unregister(IntervalSchedule)
-admin.site.unregister(CrontabSchedule)
+
 
 admin.site.unregister(gp)
 admin.site.unregister(DefaultUser)

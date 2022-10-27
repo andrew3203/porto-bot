@@ -137,6 +137,9 @@ class User(CreateUpdateTracker):
     def is_registered(user_id):
         r = redis.from_url(REDIS_URL, decode_responses=True)
         return r.exists(f'{user_id}_registration')
+    
+    def sochi_turnover_left(self):
+        return 3000000 - self.turnover > 0
    
 
     def get_keywords(self):
@@ -165,6 +168,8 @@ class User(CreateUpdateTracker):
             blaks.append('company')
         if self.username == '' or self.username is None:
             blaks.append('username')
+        
+        word = '-1' if self.sochi_turnover_left else f'{self.turnover:,}'.replace(',', ' ') 
 
         keywords =  {
             self.user_id: ['user_id'],
@@ -173,7 +178,6 @@ class User(CreateUpdateTracker):
             self.all_time_cashback: ['all_time_cashback'],
             self.all_time_gold_tickets: ['all_time_gold_tickets'],
             self.free_gold_tickets: ['free_gold_tickets'],
-            self.turnover if self.turnover > 0 else 'XXX': ['turnover'],
             
             self.position: ['position'],
             self.first_name: ['first_name'],
@@ -181,6 +185,9 @@ class User(CreateUpdateTracker):
             self.phone: ['phone'],
             self.company: ['company'],
             self.username: ['username'],
+
+            f'{self.turnover:,}'.replace(',', ' '): ['sochi_turnover'],
+            word: ['sochi_turnover_left']
         }
         if len(blaks) > 0:
             keywords[' '] = blaks
@@ -249,7 +256,7 @@ class User(CreateUpdateTracker):
         message_id = r.get(f'{user_id}_prev_message_id')
         r.delete(f'{user_id}_prev_message_id')
         return message_id
-
+    
     @staticmethod
     def get_prev_next_states(user_id, msg_text_key):
         r = redis.from_url(REDIS_URL, decode_responses=True)

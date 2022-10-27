@@ -16,9 +16,7 @@ from telegram.ext.filters import Filters
 from bot.handlers.admin import handlers as admin_handlers
 from bot.handlers.broadcast_message import handlers as broadcast_handlers
 from bot.handlers.broadcast_message.manage_data import CONFIRM_DECLINE_BROADCAST
-from bot.handlers.onboarding.manage_data import ASK_SUPPORT
-from bot.handlers.broadcast_message.static_text import broadcast_command, support_command
-from bot.handlers.onboarding import handlers as onboarding_handlers
+from bot.handlers.broadcast_message.static_text import broadcast_command
 from bot.handlers.chat import handlers as chat
 from bot.handlers.utils import error, files
 
@@ -46,6 +44,8 @@ def setup_dispatcher(dp):
     )
     dp.add_handler(CallbackQueryHandler(broadcast_handlers.broadcast_decision_handler, pattern=f"^{CONFIRM_DECLINE_BROADCAST}"))
     
+    # оборот сочи
+    dp.add_handler(CallbackQueryHandler(chat.sochi_turnover, pattern=r'посмотретьтекущийоборот'))
     
     # products  ,  stock  ,  loyalty_program  ,  support
     dp.add_handler(MessageHandler(Filters.command, chat.recive_command))

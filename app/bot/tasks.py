@@ -1,7 +1,10 @@
 """
     Celery tasks. Some of them will be launched periodically from admin panel via django-celery-beat
 """
-from portobello.settings import REDIS_URL
+from app.bot.models import Message
+from django_celery_beat.models import IntervalSchedule, CrontabSchedule, PeriodicTask
+from portobello.settings import REDIS_URL, SOCHI_TURNOVER_LINK
+import requests
 import redis
 import time
 from typing import Union, List, Optional, Dict
@@ -103,3 +106,47 @@ def send_delay_message(user_id, msg_name):
     User.set_message_id(user_id, prev_msg_id)
 
 
+@app.task(ignore_result=True)
+def sochi_turnover_update(): 
+    logger.info(f" - - - START updating Sochi Turnover - - - ")
+    resp = requests.get(SOCHI_TURNOVER_LINK)
+    data = resp.json()
+    persons = data['winners'] + data['other']
+    for person in persons:
+        User.objects.filter(deep_link=person['code_person'] ).update(turnover=person['sum'])
+    logger.info(f" - - - FINISH updating Sochi Turnover - - - ")
+    
+
+
+@app.task(ignore_result=True)
+def sochi_turnover_send():
+    sochi_turnover_update()
+    logger.info(f" - - - START sending Sochi Turnover - - - ")
+    user_list = User.objects.filter(turnover__lte=3000000)
+    msg = Message.objects.get(name='sochi_turnover_send')
+    broadcast_message2.delay(users=user_list, message_id=msg.pk, text=None)
+    logger.info(f" - - - FINISH sending Sochi Turnover - - - ")
+
+
+
+every_7_days, _ = IntervalSchedule.objects.get_or_create(
+    every=7, period=IntervalSchedule.DAYS,
+)
+
+PeriodicTask.objects.update_or_create(
+    task="bot.tasks.send_sochi_turnover",
+    name="send_sochi_turnover",
+    defaults=dict(
+        interval=every_7_days,
+        expire_seconds=100, 
+    ),
+)
+
+PeriodicTask.objects.update_or_create(
+    task="bot.tasks.sochi_turnover_update",
+    name="sochi_turnover_update",
+    defaults=dict(
+        interval=every_7_days,
+        expire_seconds=100, 
+    ),
+)
