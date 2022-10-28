@@ -256,7 +256,7 @@ class User(CreateUpdateTracker):
         Message.objects.filter(id=next_state_id).update(clicks=F('clicks') + 1)
         next_state = json.loads(raw)
         next_state['user_keywords'] = json.loads(r.get(f'{user_id}_keywords'))
-        r.setex(user_id, timedelta(hours=34), value=next_state_id)
+        r.set(user_id, value=next_state_id)
 
         prev_message_id = r.get(f'{user_id}_prev_message_id')
 
@@ -278,7 +278,7 @@ class User(CreateUpdateTracker):
         Message.objects.filter(id=next_state_id).update(clicks=F('clicks') + 1)
         next_state = json.loads(raw)
         next_state['user_keywords'] = json.loads(r.get(f'{user_id}_keywords'))
-        r.setex(user_id, timedelta(hours=30), value=next_state_id)
+        r.set(user_id, value=next_state_id)
 
         prev_message_id = r.get(f'{user_id}_prev_message_id')
 
@@ -287,7 +287,7 @@ class User(CreateUpdateTracker):
     @staticmethod
     def set_state(user_id, message_id):
         r = redis.from_url(REDIS_URL)
-        r.setex(user_id, timedelta(hours=10), value=message_id)
+        r.set(user_id, value=message_id)
 
     @classmethod
     def get_user_and_created(cls, update: Update, context: CallbackContext) -> Tuple[User, bool]:
