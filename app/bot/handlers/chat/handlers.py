@@ -43,14 +43,14 @@ def command_start(update: Update, context: CallbackContext) -> None:
                 user_keywords=u.get_keywords(), 
                 prev_state=None
             )
-            task1 = send_delay_message.apply_async(
-                kwargs={'user_id': u.user_id, 'msg_name': 'Клуб лидеров'}, 
-                eta=now+datetime.timedelta(days=1)
-            )
-            task2 = send_delay_message.apply_async(
-                kwargs={'user_id': u.user_id, 'msg_name': 'Колесо Фортуны'},
-                eta=now+datetime.timedelta(days=2)
-            )
+            #task1 = send_delay_message.apply_async(
+            #    kwargs={'user_id': u.user_id, 'msg_name': 'Клуб лидеров'}, 
+            #    eta=now+datetime.timedelta(days=1)
+            #)
+            #task2 = send_delay_message.apply_async(
+            #    kwargs={'user_id': u.user_id, 'msg_name': 'Колесо Фортуны'},
+            #    eta=now+datetime.timedelta(days=2)
+            #)
             
     else:
         recive_command(update, context)

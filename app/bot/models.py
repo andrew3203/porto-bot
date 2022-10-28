@@ -143,57 +143,31 @@ class User(CreateUpdateTracker):
    
 
     def get_keywords(self):
-        zeros = []
-        if self.free_cashback == 0:
-            zeros.append('free_cashback')
-        if self.all_time_cashback == 0:
-            zeros.append('all_time_cashback')
-        if self.all_time_gold_tickets == 0:
-            zeros.append('all_time_gold_tickets')
-        if self.free_gold_tickets == 0:
-            zeros.append('free_gold_tickets')
-        if self.turnover == 0:
-            zeros.append('turnover')
-        
-        blaks = []
-        if self.position == '' or self.position is None:
-            blaks.append('position')
-        if self.first_name == '' or self.first_name is None:
-            blaks.append('first_name')
-        if self.last_name == '' or self.last_name is None:
-            blaks.append('last_name')
-        if self.phone == '' or self.phone is None:
-            blaks.append('phone')
-        if self.company == '' or self.company is None:
-            blaks.append('company')
-        if self.username == '' or self.username is None:
-            blaks.append('username')
-        
         left = 3000000 - self.turnover
         word = '-1' if not self.sochi_turnover_left else f'{left:,}'.replace(',', ' ') 
 
-        keywords =  {
-            self.user_id: ['user_id'],
-            self.deep_link: ['user_code'],
-            self.free_cashback: ['free_cashback'],
-            self.all_time_cashback: ['all_time_cashback'],
-            self.all_time_gold_tickets: ['all_time_gold_tickets'],
-            self.free_gold_tickets: ['free_gold_tickets'],
-            
-            self.position: ['position'],
-            self.first_name: ['first_name'],
-            self.last_name: ['last_name'],
-            self.phone: ['phone'],
-            self.company: ['company'],
-            self.username: ['username'],
-
-            f'{self.turnover:,}'.replace(',', ' '): ['sochi_turnover'],
-            word: ['sochi_turnover_left']
+        data = {
+            'free_cashback': self.free_cashback,
+            'all_time_cashback': self.all_time_cashback,
+            'all_time_gold_tickets': self.all_time_gold_tickets,
+            'free_gold_tickets': self.free_gold_tickets,
+            'position': self.position,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'phone': self.phone,
+            'company': self.company,
+            'username': self.username,
+            'user_id': self.user_id,
+            'user_code': self.deep_link,
+            'sochi_turnover': f'{self.turnover:,}'.replace(',', ' '),
+            'sochi_turnover_left': word
         }
-        if len(blaks) > 0:
-            keywords[' '] = blaks
-        if len(zeros) > 0:
-            keywords[0] = zeros
+
+        keywords = {}
+        for k, v in data.items():
+            keywords[v] = keywords.get(v, []).append(k)
+
+        
         
         if 100 > self.rating_place > 1:
             text = rating_place_top
@@ -201,8 +175,8 @@ class User(CreateUpdateTracker):
             text = rating_place_middle.format(rating_place=self.rating_place)
         else:
             text = rating_place_outside
-        keywords[text] = ['rating_place']
 
+        keywords[text] = ['rating_place']
         return keywords
 
     def update_info(self, new_data):
