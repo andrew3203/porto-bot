@@ -146,6 +146,8 @@ class User(CreateUpdateTracker):
         left = 3000000 - self.turnover
         word = '-1' if not self.sochi_turnover_left else f'{left:,}'.replace(',', ' ') 
 
+        turnover = 0 if self.turnover == 0 else f'{self.turnover:,}'.replace(',', ' ')
+
         data = {
             'free_cashback': self.free_cashback,
             'all_time_cashback': self.all_time_cashback,
@@ -159,7 +161,7 @@ class User(CreateUpdateTracker):
             'username': self.username,
             'user_id': self.user_id,
             'user_code': self.deep_link,
-            'sochi_turnover': f'{self.turnover:,}'.replace(',', ' '),
+            'sochi_turnover': turnover,
             'sochi_turnover_left': word
         }
 
