@@ -165,7 +165,9 @@ class User(CreateUpdateTracker):
 
         keywords = {}
         for k, v in data.items():
-            keywords[v] = keywords.get(v, []).append(k)
+            kesy = keywords.get(v, [])
+            kesy.append(k)
+            keywords[v] = kesy
 
         
         
