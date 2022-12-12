@@ -113,7 +113,10 @@ def sochi_turnover_update():
     persons = data['winners'] + data['other']
     logger.info(f'{len(persons)} - - - - - - - - - - - - ')
     for person in persons:
-        User.objects.filter(deep_link=person['code_person'] ).update(turnover=person['sum'])
+        usr = User.objects.filter(deep_link=person['code_person'] )
+        if usr:
+            usr.turnover = person['sum']
+            usr.save()
     logger.info(f" - - - FINISH updating Sochi Turnover - - - ")
     
 
