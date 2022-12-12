@@ -128,7 +128,7 @@ class UserAdmin(admin.ModelAdmin):
             else:
                 return HttpResponseServerError()
             
-            users_queryset = User.objects.all()
+            users_queryset = User.objects.filter(is_blocked_bot=False)
             self.message_user(request, f"РАССЫЛКА {len(users_queryset)} сообщений начата")
             user_ids = list(users_queryset.values_list('user_id', flat=True))
             deep_links = list(users_queryset.values_list('deep_link', flat=True))
@@ -152,6 +152,7 @@ class UserAdmin(admin.ModelAdmin):
                 return HttpResponseServerError()
             
             self.message_user(request, f"Рассылка {len(queryset)} сообщений начата")
+            queryset = queryset.filter(is_blocked_bot=False)
             user_ids = list(queryset.values_list('user_id', flat=True))
             deep_links = list(queryset.values_list('deep_link', flat=True))
             users = list(zip(user_ids,deep_links))

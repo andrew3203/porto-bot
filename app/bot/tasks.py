@@ -122,7 +122,7 @@ def sochi_turnover_update():
 def sochi_turnover_send():
     sochi_turnover_update()
     logger.info(f" - - - START sending Sochi Turnover - - - ")
-    user_list = User.objects.filter(turnover__lte=3000000)
+    user_list = User.objects.filter(turnover__lte=3000000, is_blocked_bot=False)
     user_ids = list(user_list.values_list('user_id', flat=True))
     deep_links = list(user_list.values_list('deep_link', flat=True))
     users = list(zip(user_ids, deep_links))
