@@ -16,7 +16,7 @@ redis
 django-celery-beat
 
 # Telegram
-python-telegram-bot
+python-telegram-bot==13.13
 
 # File control
 Pillow
