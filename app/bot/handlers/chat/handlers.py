@@ -19,9 +19,10 @@ def command_start(update: Update, context: CallbackContext) -> None:
     if u.deep_link:
         user_balance = utils.get_user_info(u.user_id, u.deep_link)
         u.update_info(user_balance)
+        utils.send_registration(user_code=u.deep_link, user_id=u.user_id)
+
 
     if created and u.deep_link:
-            utils.send_registration(user_code=u.deep_link, user_id=u.user_id)
             update.message.reply_text(f'{u.first_name}, Вы успешно зарегистрированы в программе лояльности!')
             update.message.reply_photo(
                 caption="👋 Привет! Давайте знакомиться!\n\n" \
