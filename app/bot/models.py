@@ -626,7 +626,13 @@ class Broadcast(CreateTracker):
         if raw:
             data = json.loads(raw)
             state = json.loads(r.get(data[0][-1]))
-            return [(user_id, message_id, state) for user_id, message_id, _ in data]
+            ans = []
+            for user_id, message_id, _ in data:
+                state['user_keywords'] = json.loads(r.get(f'{user_id}_keywords'))
+                ans.append(
+                    (user_id, message_id, state)
+                )
+            return ans
         return []
 
 @receiver(post_save, sender=Message)
