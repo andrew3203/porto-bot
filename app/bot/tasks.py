@@ -69,7 +69,7 @@ def broadcast_message2(
             prev_message_id=prev_message_id
         )
         broad_info.append(
-            (user_id, prev_msg_id, next_state)
+            (user_id, prev_msg_id)
         )
         User.set_message_id(user_id, prev_msg_id)
         logger.info(f"Sent message ({prev_msg_id}) to {user_id}!")

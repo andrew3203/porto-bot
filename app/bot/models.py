@@ -542,6 +542,7 @@ class Message(CreateUpdateTracker):
             }, ensure_ascii=False)
 
         return cash
+        
 
 
 class Poll(CreateUpdateTracker):
@@ -623,7 +624,12 @@ class Broadcast(CreateTracker):
         r = redis.from_url(REDIS_URL, decode_responses=True)
         raw = r.get(f'{self.id}_broadcast')
         if raw:
-            return json.loads(raw)
+            ans = []
+            for user_id, message_id in json.loads(raw):
+                state = json.loads(r.get(message_id))
+                ans.append(
+                    (user_id, message_id, state)
+                )
         return []
 
 @receiver(post_save, sender=Message)
