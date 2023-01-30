@@ -174,7 +174,7 @@ def _edit_message(
             bot.edit_message_media(
                 message_id=message_id,
                 chat_id=user_id,
-                animation=open(photo, 'rb'),
+                media=telegram.InputMediaPhoto(open(photo, 'rb'))
             )
 
         bot.edit_message_text(
