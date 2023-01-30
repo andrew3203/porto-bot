@@ -610,7 +610,21 @@ class Broadcast(CreateTracker):
         ids1 = self.users.values_list('user_id', flat=True)
         ids2 = self.group.users.values_list('user_id', flat=True)
         return list(set(ids1+ids2))
+    
+    @staticmethod
+    def save_data(broadcast_id, broad_info):
+        r = redis.from_url(REDIS_URL)
+        r.set(
+            f'{broadcast_id}_broadcast', 
+            value=json.dumps(broad_info)
+        )
 
+    def get_data(self) -> list:
+        r = redis.from_url(REDIS_URL, decode_responses=True)
+        raw = r.get(f'{self.id}_broadcast')
+        if raw:
+            return json.loads(raw)
+        return []
 
 @receiver(post_save, sender=Message)
 def set_message_states(sender, instance, **kwargs):

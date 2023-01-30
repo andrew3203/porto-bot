@@ -54,11 +54,13 @@ def broadcast_message2(
     users: List[Union[str, int]],
     text: str,
     message_id: str,
+    broadcast_id: str,
     sleep_between: float = 0.4,
 ) -> None:
     """ It's used to broadcast message to big amount of users """
     logger.info(f"Going to send message to {len(users)} users")
 
+    broad_info = []
     for user_id, persone_code  in users:
         next_state, prev_message_id = models.User.get_broadcast_next_states(user_id, message_id, persone_code)
         prev_msg_id = utils.send_broadcast_message(
@@ -66,10 +68,14 @@ def broadcast_message2(
             user_id=user_id,
             prev_message_id=prev_message_id
         )
+        broad_info.append(
+            (user_id, prev_msg_id, next_state)
+        )
         User.set_message_id(user_id, prev_msg_id)
         logger.info(f"Sent message ({prev_msg_id}) to {user_id}!")
         time.sleep(max(sleep_between, 0.1))
 
+    models.Broadcast.save_data(broadcast_id, broad_info)
     logger.info("Broadcast finished!")
 
 @app.task(ignore_result=True)
@@ -132,6 +138,13 @@ def sochi_turnover_send():
     msg = models.Message.objects.get(name='sochi_turnover_send')
     broadcast_message2.delay(users=users, message_id=msg.pk, text=None)
     logger.info(f" - - - FINISH sending Sochi Turnover - - - ")
+
+
+@app.task(ignore_result=True)
+def edit_broadcast_task(broadcast_data):
+    logger.info(f" - - - START editing broadcast - - - ")
+    utils.edit_broadcast(broadcast_data)
+    logger.info(f" - - - FINISH editing broadcast - - - ")
 
 
 

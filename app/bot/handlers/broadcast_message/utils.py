@@ -4,7 +4,7 @@ import telegram
 from telegram import MessageEntity, InlineKeyboardButton, InlineKeyboardMarkup
 
 from portobello.settings import TELEGRAM_TOKEN
-from bot.models import User
+from bot.models import User, Message
 
 
 def _from_celery_markup_to_markup(celery_markup: Optional[List[List[Dict]]]) -> Optional[InlineKeyboardMarkup]:
@@ -65,7 +65,7 @@ def _send_message(
                 m = bot.send_message(
                     chat_id=user_id,
                     text=text,
-                    parse_mode=parse_mode, 
+                    parse_mode=parse_mode,
                     reply_markup=reply_markup,
                     reply_to_message_id=reply_to_message_id,
                     disable_web_page_preview=disable_web_page_preview,
@@ -79,7 +79,7 @@ def _send_message(
                 m = bot.send_message(
                     chat_id=user_id,
                     text=text,
-                    parse_mode=parse_mode, 
+                    parse_mode=parse_mode,
                     reply_markup=reply_markup,
                     reply_to_message_id=reply_to_message_id,
                     disable_web_page_preview=disable_web_page_preview,
@@ -90,20 +90,20 @@ def _send_message(
                     chat_id=user_id,
                     caption=text,
                     photo=open(photo, 'rb'),
-                    parse_mode=parse_mode, 
+                    parse_mode=parse_mode,
                     reply_markup=reply_markup,
                 )
         else:
             m = bot.send_message(
                 chat_id=user_id,
                 text=text,
-                parse_mode=parse_mode, 
+                parse_mode=parse_mode,
                 reply_markup=reply_markup,
                 reply_to_message_id=reply_to_message_id,
                 disable_web_page_preview=disable_web_page_preview,
                 entities=entities,
             )
-        
+
     except telegram.error.Unauthorized:
         print(f"Can't send message to {user_id}. Reason: Bot was stopped.")
         User.objects.filter(user_id=user_id).update(is_blocked_bot=True)
@@ -116,7 +116,7 @@ def _send_message(
     else:
         User.objects.filter(user_id=user_id).update(is_blocked_bot=False)
         return m.message_id
-   
+
 
 def _send_media_group(
     photos: list,
@@ -124,9 +124,8 @@ def _send_media_group(
     tg_token: str = TELEGRAM_TOKEN
 ) -> bool:
     bot = telegram.Bot(tg_token)
-    media = [telegram.InputMediaPhoto(open(photo, 'rb'))  for photo in photos]
+    media = [telegram.InputMediaPhoto(open(photo, 'rb')) for photo in photos]
     bot.send_media_group(user_id, media=media)
-
 
 
 def _revoke_message(
@@ -142,6 +141,7 @@ def _revoke_message(
         )
     except Exception as e:
         print(e)
+
 
 def _remove_message_markup(
     message_id: str,
@@ -159,4 +159,42 @@ def _remove_message_markup(
         print(e)
 
 
-    
+def _edit_message(
+    user_id: Union[str, int],
+    text: str,
+    message_id: Union[str, int],
+    photo: str = None,
+    parse_mode: Optional[str] = telegram.ParseMode.HTML,
+    reply_markup: Optional[List[List[Dict]]] = None,
+    tg_token: str = TELEGRAM_TOKEN,
+) -> bool:
+    bot = telegram.Bot(tg_token)
+    try:
+        if photo:
+            bot.edit_message_media(
+                message_id=message_id,
+                chat_id=user_id,
+                animation=open(photo, 'rb'),
+            )
+
+        bot.edit_message_text(
+            chat_id=user_id,
+            text=text,
+            message_id=message_id,
+            parse_mode=parse_mode,
+        )
+        bot.edit_message_reply_markup(
+            chat_id=user_id,
+            message_id=message_id,
+            reply_markup=reply_markup
+        )
+
+    except telegram.error.Unauthorized:
+        print(f"Can't send message to {user_id}. Reason: Bot was stopped.")
+        User.objects.filter(user_id=user_id).update(is_blocked_bot=True)
+
+    except Exception as e:
+        print(e)
+
+    else:
+        User.objects.filter(user_id=user_id).update(is_blocked_bot=False)

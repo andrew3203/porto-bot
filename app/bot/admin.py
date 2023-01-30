@@ -12,7 +12,7 @@ from django.urls import reverse
 from bot import models
 from bot import forms
 
-from bot.tasks import broadcast_message2, revoke_prev_message
+from bot.tasks import broadcast_message2, revoke_prev_message, edit_broadcast_task
 
 
 
@@ -133,7 +133,12 @@ class UserAdmin(admin.ModelAdmin):
             user_ids = list(users_queryset.values_list('user_id', flat=True))
             deep_links = list(users_queryset.values_list('deep_link', flat=True))
             users = list(zip(user_ids, deep_links))
-            broadcast_message2.delay(users=users, message_id=broadcast.message.id, text=broadcast.message.text)
+            broadcast_message2.delay(
+                users=users, 
+                message_id=broadcast.message.id, 
+                broadcast_id=broadcast.id,
+                text=broadcast.message.text
+            )
                 
             url = reverse(f'admin:{broadcast._meta.app_label}_{broadcast._meta.model_name}_changelist')
             return HttpResponseRedirect(url)
@@ -156,7 +161,12 @@ class UserAdmin(admin.ModelAdmin):
             user_ids = list(queryset.values_list('user_id', flat=True))
             deep_links = list(queryset.values_list('deep_link', flat=True))
             users = list(zip(user_ids,deep_links))
-            broadcast_message2.delay(users=users, message_id=broadcast.message.id, text=broadcast.message.text)
+            broadcast_message2.delay(
+                users=users,
+                message_id=broadcast.message.id, 
+                broadcast_id=broadcast.id,
+                text=broadcast.message.text
+            )
                 
             url = reverse(f'admin:{broadcast._meta.app_label}_{broadcast._meta.model_name}_changelist')
             return HttpResponseRedirect(url)
@@ -277,10 +287,26 @@ class BroadcastAdmin(admin.ModelAdmin):
             user_ids = list(broadast.users.all().values_list('user_id', flat=True))
             deep_links = list(broadast.users.all().values_list('deep_link', flat=True))
             users = list(zip(user_ids, deep_links))
-            broadcast_message2.delay(text=broadast.message.text, users=users, message_id=broadast.message.id)
+            broadcast_message2.delay(
+                text=broadast.message.text, 
+                users=users, 
+                broadcast_id=broadast.id,
+                message_id=broadast.message.id
+            )
+    
+    def edit_mailing(self, request, queryset):
+        broadast = queryset[0] if len(queryset) >= 1 else None
+        if broadast is None:
+            self.message_user(request, 'Вы не выбрали ни одного обьекта')
+            return 
+        data = broadast.get_data()
+        edit_broadcast_task.delay(data)
+        self.message_user(request, 'Редактирование рассылки запущено')
+        
 
-    actions = [send_mailing]
+    actions = [send_mailing, edit_mailing]
     send_mailing.short_description = 'Начать рассылку'
+    edit_mailing.short_description = 'Изменить рассылку'
 
 
 @admin.register(models.File)

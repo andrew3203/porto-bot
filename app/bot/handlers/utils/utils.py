@@ -5,7 +5,7 @@ from flashtext import KeywordProcessor
 from django.utils import timezone
 from bot.handlers.broadcast_message.utils import (
     _send_message, _send_media_group, 
-    _revoke_message, _remove_message_markup
+    _edit_message, _remove_message_markup
 )
 from telegram import (
     InlineKeyboardButton,
@@ -185,7 +185,7 @@ def send_logs_message(msg_text, user_keywords, prev_state):
 
     text = f'{msg_text}' + \
         '\n\n' \
-        '<b>first_name last_name</b> (user_id)\n' \
+        '<b>first_name last_name</b> (user_code)\n' \
         'company\n' \
         'phone'
     try:
@@ -193,10 +193,54 @@ def send_logs_message(msg_text, user_keywords, prev_state):
     except:
         message_text = f'{msg_text}' + \
         '\n\n' \
-        f'<b>{user_keywords.get("first_name", "Noname")} {user_keywords.get("last_name", "Noname")}</b> ({user_keywords.get("user_id", "Noname")})\n' \
+        f'<b>{user_keywords.get("first_name", "Noname")} {user_keywords.get("last_name", "Noname")}</b> ({user_keywords.get("user_code", "Noname")})\n' \
 
 
     _send_message(
         user_id=TELEGRAM_LOGS_CHAT_ID,
         text=message_text
     )
+
+def edit_message(state, user_id, message_id):
+    markup = state["markup"]
+    message_text = get_message_text(
+        state["text"], 
+        state['user_keywords']
+    )
+
+    photos = state.get("photos", [])
+    photo = photos.pop(0) if len(photos) == 1 else None
+
+    if state['message_type'] == MessageType.FLY_BTN:
+        _remove_message_markup(
+            user_id=user_id,
+            message_id=message_id
+        )
+
+    if state['message_type'] == MessageType.KEYBOORD_BTN:
+        reply_markup = get_keyboard_marckup(markup)
+
+    elif state['message_type'] == MessageType.FLY_BTN:
+        reply_markup = get_inline_marckup(markup)
+
+    else:
+        reply_markup = None
+
+    message_id = _edit_message(
+        user_id=user_id,
+        message_id=message_id,
+        text=message_text,
+        photo=photo,
+        reply_markup=reply_markup
+    )
+
+
+def edit_broadcast(broadcast_data):
+    for user_id, message_id, state in broadcast_data:
+        edit_message(
+            state=state,
+            user_id=user_id,
+            message_id=message_id
+        )
+
+    return message_id
