@@ -624,12 +624,9 @@ class Broadcast(CreateTracker):
         r = redis.from_url(REDIS_URL, decode_responses=True)
         raw = r.get(f'{self.id}_broadcast')
         if raw:
-            ans = []
-            for user_id, message_id in json.loads(raw):
-                state = json.loads(r.get(message_id))
-                ans.append(
-                    (user_id, message_id, state)
-                )
+            data = json.loads(raw)
+            state = json.loads(r.get(data[0][-1]))
+            return [(user_id, message_id, state) for user_id, message_id, _ in data]
         return []
 
 @receiver(post_save, sender=Message)
