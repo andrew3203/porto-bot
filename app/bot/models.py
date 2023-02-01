@@ -154,6 +154,7 @@ class User(CreateUpdateTracker):
             'all_time_gold_tickets': self.all_time_gold_tickets,
             'free_gold_tickets': self.free_gold_tickets,
             'position': self.position,
+            'rating_place2': self.rating_place,
             'first_name': self.first_name,
             'last_name': self.last_name,
             'phone': self.phone,

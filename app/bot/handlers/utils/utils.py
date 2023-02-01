@@ -187,7 +187,10 @@ def send_logs_message(msg_text, user_keywords, prev_state):
         '\n\n' \
         '<b>first_name last_name</b> (user_code)\n' \
         'company\n' \
-        'phone'
+        'phone\n\n' \
+        'Бонусный счет - free_cashback руб.\n' \
+        'Золотые билеты - free_gold_tickets шт.\n' \
+        'Место в рейтинге Portobello - rating_place2'
     try:
         message_text = get_message_text(text, user_keywords)
     except:
